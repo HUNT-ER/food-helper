@@ -26,10 +26,7 @@ public class Ingredient {
     @Column(name = "ingredient_name")
     private String name;
 
-    @Column(name = "ingredient_category_id")
-    private int ingredientCategoryId;
-
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ingredient_category_id", referencedColumnName = "ingredient_category_id")
     private IngredientCategory category;
 

@@ -13,7 +13,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.util.List;
 import lombok.Data;
-import org.springframework.boot.convert.DataSizeUnit;
 
 @Entity
 @Table(name = "t_users")
@@ -26,7 +25,7 @@ public class User {
     private int id;
 
     @Column(name = "user_name")
-    private String userName;
+    private String username;
 
     @Column(name = "password")
     private String password;

@@ -35,7 +35,7 @@ public class Recipe {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "recipe_category_id")
     private RecipeCategory category;
 

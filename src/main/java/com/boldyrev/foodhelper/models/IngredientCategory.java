@@ -10,12 +10,16 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.util.List;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "t_ingredients_categories")
 @Data
+@NoArgsConstructor
 public class IngredientCategory {
 
     @Id
@@ -24,10 +28,12 @@ public class IngredientCategory {
     private Integer id;
 
     @Column(name = "ingredient_category_name")
+    @NotNull(message = "Ingredient category name can't be null")
+    @Size(message = "Ingredient category name length must be between 1 and 100 chars", min = 1, max = 100)
     private String name;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_category_id",referencedColumnName = "ingredient_category_id")
+    @JoinColumn(name = "parent_category_id", referencedColumnName = "ingredient_category_id")
     private IngredientCategory parentCategory;
 
     @OneToMany(fetch = FetchType.LAZY)
@@ -37,32 +43,4 @@ public class IngredientCategory {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "category")
     private List<Ingredient> ingredients;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "parent_category_id", referencedColumnName = "ingredient_category_id")
-//    private IngredientCategory parentCategory;
-//
-//    @OneToMany(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "parent_category_id")
-//    private List<IngredientCategory> childCategories;
-//
-//    @OneToMany(fetch = FetchType.LAZY, mappedBy = "category")
-//    private List<Ingredient> ingredients;
 }

@@ -10,12 +10,16 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.util.List;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "t_recipes_categories")
 @Data
+@NoArgsConstructor
 public class RecipeCategory {
 
     @Id
@@ -24,6 +28,8 @@ public class RecipeCategory {
     private int id;
 
     @Column(name = "recipe_category_name")
+    @NotNull(message = "Recipe category name can't be null")
+    @Size(message = "Recipe category name length must be between 1 and 100 chars", min = 1, max = 100)
     private String name;
 
     @ManyToOne(fetch = FetchType.LAZY)

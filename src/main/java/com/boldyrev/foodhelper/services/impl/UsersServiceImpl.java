@@ -3,6 +3,7 @@ package com.boldyrev.foodhelper.services.impl;
 import com.boldyrev.foodhelper.exceptions.UserNotFoundException;
 import com.boldyrev.foodhelper.models.User;
 import com.boldyrev.foodhelper.repositories.UsersRepository;
+import com.boldyrev.foodhelper.security.Role;
 import com.boldyrev.foodhelper.services.UsersService;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -55,9 +56,7 @@ public class UsersServiceImpl implements UsersService {
     @Transactional
     public User register(User user) {
         log.info("Register new user with username '{}'", user.getUsername());
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setCreatedAt(LocalDateTime.now());
-        return usersRepository.save(user);
+        return usersRepository.save(enrich(user));
     }
 
 
@@ -84,6 +83,13 @@ public class UsersServiceImpl implements UsersService {
     public void delete(int id) {
         log.debug("Deleting user with id={}", id);
         usersRepository.deleteById(id);
+    }
+
+    private User enrich(User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setCreatedAt(LocalDateTime.now());
+        user.setRole(Role.USER);
+        return user;
     }
 
 }

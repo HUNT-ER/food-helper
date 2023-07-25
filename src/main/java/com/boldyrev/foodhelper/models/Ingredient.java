@@ -1,5 +1,6 @@
 package com.boldyrev.foodhelper.models;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -30,6 +31,6 @@ public class Ingredient {
     @JoinColumn(name = "ingredient_category_id", referencedColumnName = "ingredient_category_id")
     private IngredientCategory category;
 
-    @ManyToMany(mappedBy = "ingredients", fetch = FetchType.LAZY)
+    @ManyToMany(mappedBy = "ingredients", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Recipe> recipes;
 }

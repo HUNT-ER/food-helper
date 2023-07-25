@@ -1,5 +1,6 @@
 package com.boldyrev.foodhelper.models;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -12,6 +13,8 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Data;
@@ -27,10 +30,18 @@ public class Recipe {
     private int id;
 
     @Column(name = "title")
+    @NotNull(message = "Title can't be null")
     private String title;
 
     @Column(name = "description")
     private String description;
+
+    @Column(name = "image_path")
+    private String imagePath;
+
+    @Transient
+    @NotNull
+    private String imageLink;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -39,11 +50,11 @@ public class Recipe {
     @JoinColumn(name = "recipe_category_id")
     private RecipeCategory category;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User creator;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(name = "t_recipes_ingredients",
         joinColumns = @JoinColumn(name = "recipe_id"),
         inverseJoinColumns = @JoinColumn(name = "ingredient_id")

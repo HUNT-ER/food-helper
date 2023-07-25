@@ -1,6 +1,6 @@
 package com.boldyrev.foodhelper.models;
 
-import com.boldyrev.foodhelper.enums.Role;
+import com.boldyrev.foodhelper.security.Role;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -11,6 +11,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Data;
 
@@ -33,6 +34,9 @@ public class User {
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "creator")
     private List<Recipe> recipes;

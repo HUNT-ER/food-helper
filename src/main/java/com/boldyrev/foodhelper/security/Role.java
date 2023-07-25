@@ -1,4 +1,4 @@
-package com.boldyrev.foodhelper.enums;
+package com.boldyrev.foodhelper.security;
 
 import lombok.Getter;
 

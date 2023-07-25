@@ -1,6 +1,5 @@
 package com.boldyrev.foodhelper.security;
 
-import com.boldyrev.foodhelper.enums.Role;
 import com.boldyrev.foodhelper.models.User;
 import java.util.Collection;
 import java.util.List;
@@ -11,14 +10,15 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 @Data
 public class UserDetails implements org.springframework.security.core.userdetails.UserDetails {
 
-    private User user;
+    private final User user;
+
+    public UserDetails(User user) {
+        this.user = user;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(
-            new SimpleGrantedAuthority(Role.ADMIN.getName()),
-            new SimpleGrantedAuthority(Role.USER.getName()),
-            new SimpleGrantedAuthority(Role.GUEST.getName()));
+        return List.of(new SimpleGrantedAuthority(user.getRole().getName()));
     }
 
     @Override

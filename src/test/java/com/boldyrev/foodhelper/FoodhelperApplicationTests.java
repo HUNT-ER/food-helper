@@ -9,10 +9,12 @@ import com.boldyrev.foodhelper.repositories.IngredientsRepository;
 import com.boldyrev.foodhelper.repositories.RecipeCategoriesRepository;
 import com.boldyrev.foodhelper.repositories.RecipesRepository;
 import com.boldyrev.foodhelper.repositories.UsersRepository;
+import com.boldyrev.foodhelper.services.RecipesService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Query;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -39,14 +41,20 @@ class FoodhelperApplicationTests {
     @Autowired
     private UsersRepository usersRepository;
 
+    @Autowired
+    private RecipesService recipesService;
+
 
 
     @Test
     @Rollback(false)
     @Transactional
     void contextLoads() throws Exception {
-        Ingredient ingredient = ingredientsRepository.findByNameIgnoreCase("Beef fillet").get();
-        Ingredient ingredient2 = ingredientsRepository.findByNameIgnoreCase("Chicken breast").get();
+
+        Ingredient beef = ingredientsRepository.findByNameIgnoreCase("Beef fillet").get();
+        Ingredient chicken = ingredientsRepository.findByNameIgnoreCase("Chicken breast").get();
+
+        List<Ingredient> ingredients = List.of(beef, chicken);
 
         Recipe recipe = new Recipe();
         recipe.setCreator(usersRepository.findByUsernameIgnoreCase("hunter").get());
@@ -54,11 +62,28 @@ class FoodhelperApplicationTests {
         recipe.setCreatedAt(LocalDateTime.now());
         recipe.setTitle("title");
         recipe.setDescription("description");
-        recipe.setIngredients(List.of(ingredient, ingredient2));
+        recipe.setImagePath("image/path");
+        recipe.setImageLink("Link");
+
+        recipe.setIngredients(new ArrayList<>(ingredients));
+        ingredients.stream().forEach(i -> i.getRecipes().add(recipe));
 
         recipesRepository.save(recipe);
 
-        System.out.println(recipe.getIngredients().get(0).getRecipes().get(0).getTitle());
+    }
+
+    @Test
+    @Transactional
+    void context() {
+        Ingredient beef = ingredientsRepository.findByNameIgnoreCase("Beef fillet").get();
+        Ingredient chicken = ingredientsRepository.findByNameIgnoreCase("Chicken breast").get();
+
+        List<Ingredient> ingredients = List.of(beef, chicken);
+
+        List<Recipe> recipes = recipesService.findAllByIngredients(ingredients);
+
+        recipes.forEach(x -> System.out.println(x.getTitle()));
+
     }
 
 }

@@ -1,6 +1,7 @@
 package com.boldyrev.foodhelper.services.impl;
 
-import com.boldyrev.foodhelper.exceptions.IngredientCategoryNotFoundException;
+import com.boldyrev.foodhelper.exceptions.EmptyDataException;
+import com.boldyrev.foodhelper.exceptions.EntityNotFoundException;
 import com.boldyrev.foodhelper.models.IngredientCategory;
 import com.boldyrev.foodhelper.repositories.IngredientCategoriesRepository;
 import com.boldyrev.foodhelper.services.IngredientCategoriesService;
@@ -27,7 +28,7 @@ public class IngredientCategoriesServiceImpl implements IngredientCategoriesServ
     public IngredientCategory findById(int id) {
         log.debug("Getting ingredient category with id={}", id);
         return categoriesRepository.findById(id).orElseThrow(
-            () -> new IngredientCategoryNotFoundException(
+            () -> new EntityNotFoundException(
                 String.format("Category with id=%d not found", id)));
     }
 
@@ -36,7 +37,7 @@ public class IngredientCategoriesServiceImpl implements IngredientCategoriesServ
     public IngredientCategory findByName(String name) {
         log.debug("Getting ingredient category with name={}", name);
         return categoriesRepository.findByNameIgnoreCase(name)
-            .orElseThrow(() -> new IngredientCategoryNotFoundException(
+            .orElseThrow(() -> new EntityNotFoundException(
                 String.format("Category with name=%s not found", name)));
     }
 
@@ -44,7 +45,15 @@ public class IngredientCategoriesServiceImpl implements IngredientCategoriesServ
     @Transactional(readOnly = true)
     public List<IngredientCategory> findAll() {
         log.debug("Getting all ingredient categories");
-        return categoriesRepository.findAll();
+        //todo eager load
+        List<IngredientCategory> categories = categoriesRepository.findAll();
+
+        if  (categories.isEmpty()) {
+            log.debug("Ingredient categories not found");
+            throw new EmptyDataException("Ingredient categories not found");
+        }
+
+        return categories;
     }
 
     @Override
@@ -62,10 +71,8 @@ public class IngredientCategoriesServiceImpl implements IngredientCategoriesServ
         log.debug("Updating ingredient category with id={} and name={}", storedCategory.getId(),
             storedCategory.getName());
 
-        storedCategory.setChildCategories(category.getChildCategories());
         storedCategory.setName(category.getName());
         storedCategory.setParentCategory(category.getParentCategory());
-        storedCategory.setIngredients(category.getIngredients());
     }
 
     @Override

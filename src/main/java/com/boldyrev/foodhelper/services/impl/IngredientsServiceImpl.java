@@ -1,6 +1,7 @@
 package com.boldyrev.foodhelper.services.impl;
 
-import com.boldyrev.foodhelper.exceptions.IngredientNotFoundException;
+import com.boldyrev.foodhelper.exceptions.EmptyDataException;
+import com.boldyrev.foodhelper.exceptions.EntityNotFoundException;
 import com.boldyrev.foodhelper.models.Ingredient;
 import com.boldyrev.foodhelper.repositories.IngredientsRepository;
 import com.boldyrev.foodhelper.services.IngredientsService;
@@ -27,7 +28,7 @@ public class IngredientsServiceImpl implements IngredientsService {
     public Ingredient findById(int id) {
         log.debug("Getting ingredient with id={}", id);
         return ingredientsRepository.findById(id)
-            .orElseThrow(() -> new IngredientNotFoundException(
+            .orElseThrow(() -> new EntityNotFoundException(
                 String.format("Ingredient with id=%d not found.", id)));
     }
 
@@ -36,7 +37,7 @@ public class IngredientsServiceImpl implements IngredientsService {
     public Ingredient findByName(String name) {
         log.debug("Getting ingredient with name={}", name);
         return ingredientsRepository.findByNameIgnoreCase(name)
-            .orElseThrow(() -> new IngredientNotFoundException(
+            .orElseThrow(() -> new EntityNotFoundException(
                 String.format("Ingredient with name=%s not found.", name)));
     }
 
@@ -44,7 +45,15 @@ public class IngredientsServiceImpl implements IngredientsService {
     @Transactional(readOnly = true)
     public List<Ingredient> findAll() {
         log.debug("Getting all ingredients");
-        return ingredientsRepository.findAll();
+
+        List<Ingredient> ingredients = ingredientsRepository.findAll();
+
+        if (ingredients.isEmpty()) {
+            log.debug("Ingredients not found");
+            throw new EmptyDataException("Ingredients not found");
+        }
+
+        return ingredients;
     }
 
     @Override

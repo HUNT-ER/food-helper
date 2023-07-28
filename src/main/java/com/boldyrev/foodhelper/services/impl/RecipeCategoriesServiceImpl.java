@@ -1,6 +1,7 @@
 package com.boldyrev.foodhelper.services.impl;
 
-import com.boldyrev.foodhelper.exceptions.RecipeCategoryNotFoundException;
+import com.boldyrev.foodhelper.exceptions.EmptyDataException;
+import com.boldyrev.foodhelper.exceptions.EntityNotFoundException;
 import com.boldyrev.foodhelper.models.RecipeCategory;
 import com.boldyrev.foodhelper.repositories.RecipeCategoriesRepository;
 import com.boldyrev.foodhelper.services.RecipeCategoriesService;
@@ -27,7 +28,7 @@ public class RecipeCategoriesServiceImpl implements RecipeCategoriesService {
     public RecipeCategory findById(int id) {
         log.debug("Getting recipe category with id={}", id);
         return categoriesRepository.findById(id).orElseThrow(
-            () -> new RecipeCategoryNotFoundException(
+            () -> new EntityNotFoundException(
                 String.format("Recipe category with id=%d not found.", id)));
     }
 
@@ -36,7 +37,7 @@ public class RecipeCategoriesServiceImpl implements RecipeCategoriesService {
     public RecipeCategory findByName(String name) {
         log.debug("Getting recipe category with name={}", name);
         return categoriesRepository.findByNameIgnoreCase(name).orElseThrow(
-            () -> new RecipeCategoryNotFoundException(
+            () -> new EntityNotFoundException(
                 String.format("Recipe category with name=%s not found.", name)));
     }
 
@@ -44,7 +45,15 @@ public class RecipeCategoriesServiceImpl implements RecipeCategoriesService {
     @Transactional(readOnly = true)
     public List<RecipeCategory> findAll() {
         log.debug("Getting all recipe categories");
-        return categoriesRepository.findAll();
+
+        List<RecipeCategory> recipeCategories = categoriesRepository.findAll();
+
+        if (recipeCategories.isEmpty()) {
+            log.debug("Recipe categories not found");
+            throw new EmptyDataException("Recipe categories not found");
+        }
+
+        return recipeCategories;
     }
 
     @Override
@@ -58,16 +67,14 @@ public class RecipeCategoriesServiceImpl implements RecipeCategoriesService {
     @Transactional
     public void update(int id, RecipeCategory category) {
         RecipeCategory storedCategory = categoriesRepository.findById(id).orElseThrow(
-            () -> new RecipeCategoryNotFoundException(
+            () -> new EntityNotFoundException(
                 String.format("Recipe category with id=%d not found.", id)));
 
         log.debug("Updating recipe category with id={} and name={}", storedCategory.getId(),
             storedCategory.getName());
 
         storedCategory.setName(category.getName());
-        storedCategory.setRecipes(category.getRecipes());
         storedCategory.setParentCategory(category.getParentCategory());
-        storedCategory.setChildCategory(category.getChildCategory());
     }
 
     @Override

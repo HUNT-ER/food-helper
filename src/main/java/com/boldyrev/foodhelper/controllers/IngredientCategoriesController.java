@@ -2,6 +2,8 @@ package com.boldyrev.foodhelper.controllers;
 
 import com.boldyrev.foodhelper.controllers.responses.CustomResponse;
 import com.boldyrev.foodhelper.dto.IngredientCategoryDTO;
+import com.boldyrev.foodhelper.dto.transfer.Exist;
+import com.boldyrev.foodhelper.dto.transfer.New;
 import com.boldyrev.foodhelper.models.IngredientCategory;
 import com.boldyrev.foodhelper.services.IngredientCategoriesService;
 import com.boldyrev.foodhelper.util.mappers.IngredientCategoryMapper;
@@ -49,15 +51,19 @@ public class IngredientCategoriesController {
         List<IngredientCategoryDTO> categories = categoriesService.findAll().stream()
             .map(categoryMapper::categoryToCategoryDTO).toList();
 
-        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
-            .body(CustomResponse.builder().httpStatus(HttpStatus.OK).body(categories).build());
+        return ResponseEntity.ok()
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(CustomResponse.builder()
+                .httpStatus(HttpStatus.OK)
+                .body(categories)
+                .build());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CustomResponse> getById(
-        @PathVariable(name = "id") @Min(1) Integer id) {
+    public ResponseEntity<CustomResponse> getById(@PathVariable(name = "id") @Min(1) Integer id) {
 
-        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
+        return ResponseEntity.ok()
+            .contentType(MediaType.APPLICATION_JSON)
             .body(CustomResponse.builder()
                 .httpStatus(HttpStatus.OK)
                 .body(categoryMapper.categoryToCategoryDTO(categoriesService.findById(id)))
@@ -66,35 +72,40 @@ public class IngredientCategoriesController {
 
     @PostMapping
     public ResponseEntity<CustomResponse> create(
-        @RequestBody @Valid IngredientCategoryDTO categoryDTO, BindingResult errors) {
+        @RequestBody @Validated(New.class) IngredientCategoryDTO categoryDTO, BindingResult errors) {
         validator.validate(categoryDTO, errors);
         IngredientCategory category = categoryMapper.categoryDTOtoCategory(categoryDTO);
 
-        return new ResponseEntity<>(
-            CustomResponse.builder().httpStatus(HttpStatus.CREATED)
-                .body(categoryMapper.categoryToCategoryDTO(categoriesService.save(category)))
-                .build(),
-            HttpStatus.CREATED);
+        return new ResponseEntity<>(CustomResponse.builder()
+            .httpStatus(HttpStatus.CREATED)
+            .body(categoryMapper.categoryToCategoryDTO(categoriesService.save(category)))
+            .build(), HttpStatus.CREATED);
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<CustomResponse> edit(@PathVariable("id") @Min(1) Integer id,
-        @RequestBody @Valid IngredientCategoryDTO categoryDTO, BindingResult errors) {
+    public ResponseEntity<CustomResponse> editById(@PathVariable("id") @Min(1) Integer id,
+        @RequestBody @Validated(Exist.class) IngredientCategoryDTO categoryDTO, BindingResult errors) {
         validator.validate(categoryDTO, errors);
         IngredientCategory category = categoryMapper.categoryDTOtoCategory(categoryDTO);
         categoriesService.update(id, category);
 
         return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
-            .body(CustomResponse.builder().httpStatus(HttpStatus.OK).body(categoryDTO).build());
+            .body(CustomResponse.builder()
+                .httpStatus(HttpStatus.OK)
+                .body(categoryDTO)
+                .build());
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<CustomResponse> delete(@PathVariable("id") @Min(1) Integer id) {
+    public ResponseEntity<CustomResponse> deleteById(@PathVariable("id") @Min(1) Integer id) {
         categoriesService.delete(id);
 
-        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(
-            CustomResponse.builder().httpStatus(HttpStatus.OK)
-                .message(String.format("Entity with id=%s was deleted", id)).build());
+        return ResponseEntity.ok()
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(CustomResponse.builder()
+                .httpStatus(HttpStatus.OK)
+                .message(String.format("Ingredient category with id=%d was deleted", id))
+                .build());
     }
 
 }

@@ -28,14 +28,14 @@ public class Ingredient {
     @Id
     @Column(name = "ingredient_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
     @Column(name = "ingredient_name")
     @NotNull(message = "Ingredient name can't be null")
     @Size(message = "Ingredient name length must be between 1 and 100 chars", min = 1, max = 100)
     private String name;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ingredient_category_id", referencedColumnName = "ingredient_category_id")
     @NotNull(message = "Ingredient should have category")
     private IngredientCategory category;

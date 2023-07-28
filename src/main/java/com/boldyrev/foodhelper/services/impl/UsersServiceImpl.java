@@ -1,6 +1,7 @@
 package com.boldyrev.foodhelper.services.impl;
 
-import com.boldyrev.foodhelper.exceptions.UserNotFoundException;
+import com.boldyrev.foodhelper.exceptions.EmptyDataException;
+import com.boldyrev.foodhelper.exceptions.EntityNotFoundException;
 import com.boldyrev.foodhelper.models.User;
 import com.boldyrev.foodhelper.repositories.UsersRepository;
 import com.boldyrev.foodhelper.security.Role;
@@ -33,7 +34,7 @@ public class UsersServiceImpl implements UsersService {
     public User findByUsername(String username) {
         log.debug("Getting user with username '{}'", username);
         return usersRepository.findByUsernameIgnoreCase(username).orElseThrow(
-            () -> new UserNotFoundException(
+            () -> new EntityNotFoundException(
                 String.format("User with username '%s' not found", username)));
     }
 
@@ -42,14 +43,22 @@ public class UsersServiceImpl implements UsersService {
     public User findById(int id) {
         log.debug("Getting user with id={}", id);
         return usersRepository.findById(id).orElseThrow(
-            () -> new UserNotFoundException(String.format("User with id '%d' not found", id)));
+            () -> new EntityNotFoundException(String.format("User with id '%d' not found", id)));
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<User> findAll() {
         log.debug("Getting all users");
-        return usersRepository.findAll();
+
+        List<User> users = usersRepository.findAll();
+
+        if (users.isEmpty()) {
+            log.debug("Users not found");
+            throw new EmptyDataException("Users not found");
+        }
+
+        return users;
     }
 
     @Override

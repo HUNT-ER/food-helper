@@ -25,7 +25,7 @@ public class RecipeCategory {
     @Id
     @Column(name = "recipe_category_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
     @Column(name = "recipe_category_name")
     @NotNull(message = "Recipe category name can't be null")

@@ -1,0 +1,8 @@
+package com.boldyrev.foodhelper.exceptions;
+
+public class ValidationException extends RuntimeException {
+
+    public ValidationException(String message) {
+        super(message);
+    }
+}

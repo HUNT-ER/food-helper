@@ -31,7 +31,7 @@ public class Recipe {
     @Id
     @Column(name = "recipe_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
     @Column(name = "title")
     @NotNull(message = "Title can't be null")

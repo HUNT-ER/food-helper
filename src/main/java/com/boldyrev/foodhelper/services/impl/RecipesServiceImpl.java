@@ -1,9 +1,9 @@
 package com.boldyrev.foodhelper.services.impl;
 
-import com.boldyrev.foodhelper.exceptions.RecipeNotFoundException;
+import com.boldyrev.foodhelper.exceptions.EmptyDataException;
+import com.boldyrev.foodhelper.exceptions.EntityNotFoundException;
 import com.boldyrev.foodhelper.models.Ingredient;
 import com.boldyrev.foodhelper.models.Recipe;
-import com.boldyrev.foodhelper.repositories.ImageS3Repository;
 import com.boldyrev.foodhelper.repositories.RecipesRepository;
 import com.boldyrev.foodhelper.services.ImageS3Service;
 import com.boldyrev.foodhelper.services.IngredientsService;
@@ -46,7 +46,7 @@ public class RecipesServiceImpl implements RecipesService {
     @Transactional(readOnly = true)
     public Recipe findById(int id) {
         log.debug("Getting Recipe with id={}", id);
-        return recipesRepository.findById(id).orElseThrow(() -> new RecipeNotFoundException(
+        return recipesRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(
             String.format("Recipe with id=%d not found.", id)));
     }
 
@@ -55,7 +55,7 @@ public class RecipesServiceImpl implements RecipesService {
     public Recipe findByTitle(String title) {
         log.debug("Getting Recipe with title={}", title);
         return recipesRepository.findByTitleIgnoreCase(title).orElseThrow(
-            () -> new RecipeNotFoundException(
+            () -> new EntityNotFoundException(
                 String.format("Recipe with title=%s not found.", title)));
     }
 
@@ -63,15 +63,32 @@ public class RecipesServiceImpl implements RecipesService {
     @Transactional(readOnly = true)
     public List<Recipe> findAll() {
         log.debug("Getting all Recipes");
-        return recipesRepository.findAll();
+
+        List<Recipe> recipes = recipesRepository.findAll();
+
+        if (recipes.isEmpty()) {
+            log.debug("Recipes not found");
+            throw new EmptyDataException("Recipes not found");
+        }
+
+        return recipes;
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Recipe> findAllByIngredients(List<Ingredient> ingredients) {
         log.debug("Finding Recipes by Ingredients");
-        return recipesRepository.findAllByIngredients(
+
+        List<Recipe> recipes = recipesRepository.findAllByIngredients(
             ingredients.stream().map(x -> x.getId()).distinct().toList());
+
+        if (recipes.isEmpty()) {
+            log.debug("Recipes by ingredients not found");
+            throw new EmptyDataException("Recipes by ingredients not found");
+        }
+
+        return recipes;
+
         //todo засунуть в Query ингредиент
     }
 

@@ -9,6 +9,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,7 +47,7 @@ public class IngredientsServiceImpl implements IngredientsService {
     public List<Ingredient> findAll() {
         log.debug("Getting all ingredients");
 
-        List<Ingredient> ingredients = ingredientsRepository.findAll();
+        List<Ingredient> ingredients = ingredientsRepository.findAll(Sort.by("name"));
 
         if (ingredients.isEmpty()) {
             log.debug("Ingredients not found");
@@ -65,6 +66,19 @@ public class IngredientsServiceImpl implements IngredientsService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<Ingredient> searchByName(String name) {
+        List<Ingredient> ingredients = ingredientsRepository.findByNameContainingIgnoreCase(name);
+
+        if (ingredients.isEmpty()) {
+            log.debug("Ingredients by name not found");
+            throw new EmptyDataException("Ingredients not found");
+        }
+
+        return ingredients;
+    }
+
+    @Override
     @Transactional
     public void update(int id, Ingredient ingredient) {
 
@@ -73,9 +87,13 @@ public class IngredientsServiceImpl implements IngredientsService {
         log.debug("Updating ingredient with id={} and name={}", foundIngredient.getId(),
             foundIngredient.getName());
 
-        foundIngredient.setName(ingredient.getName());
-        foundIngredient.setCategory(ingredient.getCategory());
-        foundIngredient.setRecipes(ingredient.getRecipes());
+        if (ingredient.getName() != null) {
+            foundIngredient.setName(ingredient.getName());
+        }
+
+        if (ingredient.getCategory() != null) {
+            foundIngredient.setCategory(ingredient.getCategory());
+        }
     }
 
     @Override

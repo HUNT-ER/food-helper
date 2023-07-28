@@ -9,6 +9,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,9 +47,9 @@ public class IngredientCategoriesServiceImpl implements IngredientCategoriesServ
     public List<IngredientCategory> findAll() {
         log.debug("Getting all ingredient categories");
         //todo eager load
-        List<IngredientCategory> categories = categoriesRepository.findAll();
+        List<IngredientCategory> categories = categoriesRepository.findAll(Sort.by("name"));
 
-        if  (categories.isEmpty()) {
+        if (categories.isEmpty()) {
             log.debug("Ingredient categories not found");
             throw new EmptyDataException("Ingredient categories not found");
         }
@@ -71,8 +72,13 @@ public class IngredientCategoriesServiceImpl implements IngredientCategoriesServ
         log.debug("Updating ingredient category with id={} and name={}", storedCategory.getId(),
             storedCategory.getName());
 
-        storedCategory.setName(category.getName());
-        storedCategory.setParentCategory(category.getParentCategory());
+        if (category.getName() != null) {
+            storedCategory.setName(category.getName());
+
+        }
+        if (category.getParentCategory() != null) {
+            storedCategory.setParentCategory(category.getParentCategory());
+        }
     }
 
     @Override

@@ -14,10 +14,13 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableMethodSecurity
 public class SecurityConfig {
 
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity security) throws Exception {
-        return security.authorizeHttpRequests(r -> r.anyRequest().permitAll())
-            .csrf(c -> c.disable())
-            .build();
+        security.authorizeHttpRequests(
+                req -> req.anyRequest().permitAll())
+            .csrf(csrf -> csrf.disable());
+
+        return security.build();
     }
 
     @Bean
@@ -25,4 +28,3 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 }
-

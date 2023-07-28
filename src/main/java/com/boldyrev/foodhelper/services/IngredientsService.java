@@ -13,6 +13,8 @@ public interface IngredientsService {
 
     Ingredient save(Ingredient ingredient);
 
+    List<Ingredient> searchByName(String name);
+
     void update(int id, Ingredient ingredient);
 
     void delete(int id);

@@ -73,8 +73,13 @@ public class RecipeCategoriesServiceImpl implements RecipeCategoriesService {
         log.debug("Updating recipe category with id={} and name={}", storedCategory.getId(),
             storedCategory.getName());
 
-        storedCategory.setName(category.getName());
-        storedCategory.setParentCategory(category.getParentCategory());
+        if (category.getName() != null) {
+            storedCategory.setName(category.getName());
+        }
+        if (category.getParentCategory() != null) {
+            storedCategory.setParentCategory(category.getParentCategory());
+        }
+
     }
 
     @Override

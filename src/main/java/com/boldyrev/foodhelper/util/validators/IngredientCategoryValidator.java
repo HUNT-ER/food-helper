@@ -1,7 +1,6 @@
 package com.boldyrev.foodhelper.util.validators;
 
 import com.boldyrev.foodhelper.dto.IngredientCategoryDTO;
-import com.boldyrev.foodhelper.dto.IngredientDTO;
 import com.boldyrev.foodhelper.exceptions.EntityAlreadyExistsException;
 import com.boldyrev.foodhelper.exceptions.ValidationException;
 import com.boldyrev.foodhelper.models.IngredientCategory;
@@ -36,26 +35,6 @@ public class IngredientCategoryValidator extends CustomValidator {
 
         log.debug("Errors: {}", errors.hasErrors());
         log.debug(((IngredientCategoryDTO) target).toString());
-
-        if (!errors.hasErrors()) {
-
-            IngredientCategoryDTO category = (IngredientCategoryDTO) target;
-
-            Optional<IngredientCategory> foundCategory = categoriesRepository.findByNameIgnoreCase(
-                category.getName());
-
-            if (foundCategory.isPresent()) {
-                throw new EntityAlreadyExistsException(
-                    String.format("Category with name '%s' already exists", category.getName()));
-            }
-
-            if (category.getParentCategory() != null && categoriesRepository.findByNameIgnoreCase(
-                category.getParentCategory()).isEmpty()) {
-                errors.rejectValue("parentCategory", "parent_category_not_exists",
-                    String.format("Category with name '%s' not exists an can't be parent",
-                        category.getParentCategory()));
-            }
-        }
 
         if (errors.hasErrors()) {
             throw new ValidationException(getErrors(errors));

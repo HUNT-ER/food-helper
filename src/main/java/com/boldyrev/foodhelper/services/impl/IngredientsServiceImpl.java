@@ -47,7 +47,7 @@ public class IngredientsServiceImpl implements IngredientsService {
     public List<Ingredient> findAll() {
         log.debug("Getting all ingredients");
 
-        List<Ingredient> ingredients = ingredientsRepository.findAll(Sort.by("name"));
+        List<Ingredient> ingredients = ingredientsRepository.findAll();
 
         if (ingredients.isEmpty()) {
             log.debug("Ingredients not found");

@@ -15,13 +15,17 @@ public abstract class CustomValidator implements Validator {
         StringBuilder builder = new StringBuilder();
 
         builder.append(entityClass)
-                .append(" not saved: ");
+            .append(" not saved: ");
 
-        errors.getFieldErrors().forEach(e ->
-            builder.append(e.getField())
-                .append(" - ")
-                .append(e.getDefaultMessage())
-                .append("; "));
+        if (errors.hasFieldErrors()) {
+            errors.getFieldErrors().forEach(e ->
+                builder.append(e.getField())
+                    .append(" - ")
+                    .append(e.getDefaultMessage())
+                    .append("; "));
+        } else {
+            builder.append(errors.getGlobalError().getDefaultMessage());
+        }
 
         return builder.toString();
     }

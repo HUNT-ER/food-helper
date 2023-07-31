@@ -107,7 +107,7 @@ public class IngredientsController {
             .contentType(MediaType.APPLICATION_JSON)
             .body(CustomResponse.builder()
                 .httpStatus(HttpStatus.OK)
-                .message(String.format("Ingredient with id=%d was deleted", id))
+                .message(String.format("Ingredient with id=%d was deleted or not exists", id))
                 .build());
     }
 

@@ -35,7 +35,7 @@ public class IngredientCategory {
     @Size(message = "Ingredient category name length must be between 1 and 100 chars", min = 1, max = 100)
     private String name;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_category_id", referencedColumnName = "ingredient_category_id")
     private IngredientCategory parentCategory;
 

@@ -13,9 +13,9 @@ public abstract class IngredientMapper {
     @Autowired
     protected IngredientCategoriesService ingredientCategoriesService;
 
-    @Mapping(target = "category", expression = "java(ingredient.getCategory().getName())")
+    @Mapping(target = "category", expression = "java(ingredient.getCategory() == null ? null : ingredient.getCategory().getName())")
     public abstract IngredientDTO ingredientToIngredientDTO(Ingredient ingredient);
 
-    @Mapping(target = "category", expression = "java(ingredientCategoriesService.findByName(ingredient.getCategory()))")
+    @Mapping(target = "category", expression = "java(ingredient.getCategory() == null ? null : ingredientCategoriesService.findByName(ingredient.getCategory()))")
     public abstract Ingredient ingredientDTOToIngredient(IngredientDTO ingredient);
 }

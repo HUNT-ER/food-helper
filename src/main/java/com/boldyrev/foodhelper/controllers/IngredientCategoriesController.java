@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/ingredient_categories")
+@RequestMapping("/api/v1/ingredient-categories")
 @Validated
 public class IngredientCategoriesController {
 
@@ -104,7 +104,7 @@ public class IngredientCategoriesController {
             .contentType(MediaType.APPLICATION_JSON)
             .body(CustomResponse.builder()
                 .httpStatus(HttpStatus.OK)
-                .message(String.format("Ingredient category with id=%d was deleted", id))
+                .message(String.format("Ingredient category with id=%d was deleted or not exists", id))
                 .build());
     }
 

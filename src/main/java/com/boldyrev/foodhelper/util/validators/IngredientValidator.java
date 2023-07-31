@@ -38,27 +38,8 @@ public class IngredientValidator extends CustomValidator {
         log.debug("Errors: {}", errors.hasErrors());
         log.debug(((IngredientDTO) target).toString());
 
-        if (!errors.hasErrors()) {
-
-            IngredientDTO ingredient = (IngredientDTO) target;
-
-            Optional<Ingredient> storedIngredient = ingredientsRepository.findByNameIgnoreCase(
-                ingredient.getName());
-
-            if (storedIngredient.isPresent()) {
-                throw new EntityAlreadyExistsException(
-                    String.format("Ingredient with name '%s' already exists", ingredient.getName()));
-            }
-
-            if (categoriesRepository.findByNameIgnoreCase(ingredient.getCategory()).isEmpty()) {
-                errors.rejectValue("category", "category_not_exists",
-                    String.format("Ingredient category with name='%s' not exists", ingredient.getCategory()));
-            }
-        }
-
         if (errors.hasErrors()) {
             throw new ValidationException(getErrors(errors));
         }
-
     }
 }

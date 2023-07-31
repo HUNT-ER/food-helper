@@ -5,6 +5,7 @@ import com.boldyrev.foodhelper.exceptions.EntityAlreadyExistsException;
 import com.boldyrev.foodhelper.exceptions.EntityNotFoundException;
 import com.boldyrev.foodhelper.exceptions.ValidationException;
 import jakarta.validation.ConstraintViolationException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -37,5 +38,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         //todo пересмотреть кастомное сообщение
         return ResponseEntity.badRequest()
             .body(new ErrorResponse(e.getMessage(), HttpStatus.BAD_REQUEST));
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handleException(DataIntegrityViolationException e) {
+        return ResponseEntity.badRequest()
+            .body(new ErrorResponse("This object already exists", HttpStatus.BAD_REQUEST));
     }
 }

@@ -46,8 +46,8 @@ public class IngredientCategoriesServiceImpl implements IngredientCategoriesServ
     @Transactional(readOnly = true)
     public List<IngredientCategory> findAll() {
         log.debug("Getting all ingredient categories");
-        //todo eager load
-        List<IngredientCategory> categories = categoriesRepository.findAll(Sort.by("name"));
+
+        List<IngredientCategory> categories = categoriesRepository.findAll();
 
         if (categories.isEmpty()) {
             log.debug("Ingredient categories not found");

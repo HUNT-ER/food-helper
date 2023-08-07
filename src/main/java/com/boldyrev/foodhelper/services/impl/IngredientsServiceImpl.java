@@ -82,18 +82,20 @@ public class IngredientsServiceImpl implements IngredientsService {
     @Transactional
     public void update(int id, Ingredient ingredient) {
 
-        Ingredient foundIngredient = this.findById(id);
+        Ingredient storedIngredient = this.findById(id);
 
-        log.debug("Updating ingredient with id={} and name={}", foundIngredient.getId(),
-            foundIngredient.getName());
+        log.debug("Updating ingredient with id={} and name={}", storedIngredient.getId(),
+            storedIngredient.getName());
 
-        if (ingredient.getName() != null) {
-            foundIngredient.setName(ingredient.getName());
-        }
-
-        if (ingredient.getCategory() != null) {
-            foundIngredient.setCategory(ingredient.getCategory());
-        }
+//        if (ingredient.getName() != null) {
+//            foundIngredient.setName(ingredient.getName());
+//        }
+//
+//        if (ingredient.getCategory() != null) {
+//            foundIngredient.setCategory(ingredient.getCategory());
+//        }
+        storedIngredient.setName(ingredient.getName());
+        storedIngredient.setCategory(ingredient.getCategory());
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.boldyrev.foodhelper.models;
 
+import com.boldyrev.foodhelper.dto.transfer.NewCategory;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -13,12 +14,17 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.util.List;
+import java.util.Objects;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString.Exclude;
 
 @Entity
 @Table(name = "t_recipes_categories")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 public class RecipeCategory {
 
@@ -28,8 +34,8 @@ public class RecipeCategory {
     private Integer id;
 
     @Column(name = "recipe_category_name")
-    @NotNull(message = "Recipe category name can't be null")
-    @Size(message = "Recipe category name length must be between 1 and 100 chars", min = 1, max = 100)
+    @NotNull
+    @Size(min = 1, max = 100)
     private String name;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -42,4 +48,21 @@ public class RecipeCategory {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "category")
     private List<Recipe> recipes;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof RecipeCategory)) {
+            return false;
+        }
+        RecipeCategory that = (RecipeCategory) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

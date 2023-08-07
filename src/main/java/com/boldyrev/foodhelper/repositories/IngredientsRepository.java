@@ -1,6 +1,7 @@
 package com.boldyrev.foodhelper.repositories;
 
 import com.boldyrev.foodhelper.models.Ingredient;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -19,4 +20,7 @@ public interface IngredientsRepository extends JpaRepository<Ingredient, Integer
 
     @Query("select c,r from Ingredient c left join c.category r where c.id = :id")
     Optional<Ingredient> findById(@Param("id") Integer id);
+
+    @Query("select i from Ingredient i where i.id in :ingredients")
+    List<Ingredient> findAllById(@Param("ingredients") Collection<Ingredient> ingredients);
 }

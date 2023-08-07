@@ -2,7 +2,6 @@ package com.boldyrev.foodhelper.util.mappers;
 
 import com.boldyrev.foodhelper.dto.IngredientDTO;
 import com.boldyrev.foodhelper.models.Ingredient;
-import com.boldyrev.foodhelper.services.IngredientCategoriesService;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,11 +10,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 public abstract class IngredientMapper {
 
     @Autowired
-    protected IngredientCategoriesService ingredientCategoriesService;
+    protected IngredientCategoryMapper categoryMapper;
 
-    @Mapping(target = "category", expression = "java(ingredient.getCategory() == null ? null : ingredient.getCategory().getName())")
+    @Mapping(target = "category", expression = "java(categoryMapper.categoryDTOToCategory(ingredient.getCategory()))")
+    @Mapping(target = "category.parentCategory", ignore = true)
     public abstract IngredientDTO ingredientToIngredientDTO(Ingredient ingredient);
 
-    @Mapping(target = "category", expression = "java(ingredient.getCategory() == null ? null : ingredientCategoriesService.findByName(ingredient.getCategory()))")
+    @Mapping(target = "category", expression = "java(categoryMapper.categoryToCategoryDTO(ingredient.getCategory()))")
+    @Mapping(target = "category.parentCategory", ignore = true)
     public abstract Ingredient ingredientDTOToIngredient(IngredientDTO ingredient);
+
+
 }

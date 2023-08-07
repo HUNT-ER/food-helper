@@ -4,6 +4,7 @@ import com.boldyrev.foodhelper.controllers.responses.CustomResponse;
 import com.boldyrev.foodhelper.dto.IngredientCategoryDTO;
 import com.boldyrev.foodhelper.dto.transfer.Exist;
 import com.boldyrev.foodhelper.dto.transfer.New;
+import com.boldyrev.foodhelper.dto.transfer.NewCategory;
 import com.boldyrev.foodhelper.models.IngredientCategory;
 import com.boldyrev.foodhelper.services.IngredientCategoriesService;
 import com.boldyrev.foodhelper.util.mappers.IngredientCategoryMapper;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -72,7 +74,7 @@ public class IngredientCategoriesController {
 
     @PostMapping
     public ResponseEntity<CustomResponse> create(
-        @RequestBody @Validated(New.class) IngredientCategoryDTO categoryDTO, BindingResult errors) {
+        @RequestBody @Validated(NewCategory.class) IngredientCategoryDTO categoryDTO, BindingResult errors) {
         validator.validate(categoryDTO, errors);
         IngredientCategory category = categoryMapper.categoryDTOtoCategory(categoryDTO);
 
@@ -82,10 +84,11 @@ public class IngredientCategoriesController {
             .build(), HttpStatus.CREATED);
     }
 
-    @PatchMapping("/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<CustomResponse> editById(@PathVariable("id") @Min(1) Integer id,
-        @RequestBody @Validated(Exist.class) IngredientCategoryDTO categoryDTO, BindingResult errors) {
+        @RequestBody @Validated(NewCategory.class) IngredientCategoryDTO categoryDTO, BindingResult errors) {
         validator.validate(categoryDTO, errors);
+
         IngredientCategory category = categoryMapper.categoryDTOtoCategory(categoryDTO);
         categoriesService.update(id, category);
 

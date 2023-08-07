@@ -72,13 +72,15 @@ public class IngredientCategoriesServiceImpl implements IngredientCategoriesServ
         log.debug("Updating ingredient category with id={} and name={}", storedCategory.getId(),
             storedCategory.getName());
 
-        if (category.getName() != null) {
-            storedCategory.setName(category.getName());
-
-        }
-        if (category.getParentCategory() != null) {
-            storedCategory.setParentCategory(category.getParentCategory());
-        }
+//        if (category.getName() != null) {
+//            storedCategory.setName(category.getName());
+//
+//        }
+//        if (category.getParentCategory() != null) {
+//            storedCategory.setParentCategory(category.getParentCategory());
+//        }
+        storedCategory.setName(category.getName());
+        storedCategory.setParentCategory(category.getParentCategory());
     }
 
     @Override

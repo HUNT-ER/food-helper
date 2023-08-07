@@ -34,7 +34,7 @@ public class RecipeCategoryValidator extends CustomValidator {
     public void validate(Object target, Errors errors) {
 
         log.debug("Errors: {}", errors.hasErrors());
-        log.debug(((IngredientCategoryDTO) target).toString());
+        log.debug(((RecipeCategoryDTO) target).toString());
 
         if (errors.hasErrors()) {
             throw new ValidationException(getErrors(errors));

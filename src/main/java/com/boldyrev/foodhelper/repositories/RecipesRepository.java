@@ -5,12 +5,44 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface RecipesRepository extends JpaRepository<Recipe, Integer> {
 
     Optional<Recipe> findByTitleIgnoreCase(String title);
 
-    @Query(value = "SELECT r FROM Recipe r INNER JOIN r.ingredients i WHERE i.id IN :ingredients GROUP BY r.id")
-    List<Recipe> findAllByIngredients(List<Integer> ingredients);
+    @Query(value = """
+        SELECT r 
+        FROM Recipe r 
+        JOIN FETCH r.category c
+        JOIN FETCH c.parentCategory 
+        JOIN FETCH r.creator 
+        JOIN FETCH r.recipeIngredients i
+        JOIN FETCH i.id.ingredient
+        WHERE i.id IN :ingredients """)
+    List<Recipe> findAllByIngredients(@Param("ingredients") List<Integer> ingredients);
+
+    @Query(value = """      
+        SELECT r 
+        FROM Recipe r 
+        JOIN FETCH r.category c
+        JOIN FETCH c.parentCategory 
+        JOIN FETCH r.creator 
+        LEFT JOIN FETCH r.recipeIngredients i
+        LEFT JOIN FETCH i.id.ingredient""")
+    List<Recipe> findAll();
+
+    @Query("""
+        SELECT r 
+        FROM Recipe r 
+        JOIN FETCH r.category c
+        JOIN FETCH c.parentCategory 
+        JOIN FETCH r.creator 
+        LEFT JOIN FETCH r.recipeIngredients i
+        LEFT JOIN FETCH i.id.ingredient
+        WHERE r.id = :id
+        """)
+    Optional<Recipe> findById(@Param("id") int id);
+
 
 }

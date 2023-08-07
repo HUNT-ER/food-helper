@@ -3,12 +3,11 @@ package com.boldyrev.foodhelper.controllers;
 import com.boldyrev.foodhelper.controllers.responses.CustomResponse;
 import com.boldyrev.foodhelper.dto.IngredientDTO;
 import com.boldyrev.foodhelper.dto.transfer.Exist;
-import com.boldyrev.foodhelper.dto.transfer.New;
+import com.boldyrev.foodhelper.dto.transfer.NewIngredient;
 import com.boldyrev.foodhelper.models.Ingredient;
 import com.boldyrev.foodhelper.services.IngredientsService;
 import com.boldyrev.foodhelper.util.mappers.IngredientMapper;
 import com.boldyrev.foodhelper.util.validators.IngredientValidator;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +18,9 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -71,7 +70,8 @@ public class IngredientsController {
     }
 
     @PostMapping
-    public ResponseEntity<CustomResponse> create(@RequestBody @Validated(New.class) IngredientDTO ingredientDTO,
+    public ResponseEntity<CustomResponse> create(
+        @RequestBody @Validated(NewIngredient.class) IngredientDTO ingredientDTO,
         BindingResult errors) {
         ingredientValidator.validate(ingredientDTO, errors);
 
@@ -84,9 +84,9 @@ public class IngredientsController {
             .build(), HttpStatus.CREATED);
     }
 
-    @PatchMapping("/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<CustomResponse> editById(@PathVariable("id") @Min(1) Integer id,
-        @RequestBody @Validated(Exist.class) IngredientDTO ingredientDTO, BindingResult errors) {
+        @RequestBody @Validated(NewIngredient.class) IngredientDTO ingredientDTO, BindingResult errors) {
         ingredientValidator.validate(ingredientDTO, errors);
 
         ingredientsService.update(id, ingredientMapper.ingredientDTOToIngredient(ingredientDTO));

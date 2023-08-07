@@ -4,6 +4,8 @@ import com.boldyrev.foodhelper.exceptions.EmptyDataException;
 import com.boldyrev.foodhelper.exceptions.EntityNotFoundException;
 import com.boldyrev.foodhelper.models.Ingredient;
 import com.boldyrev.foodhelper.models.Recipe;
+import com.boldyrev.foodhelper.repositories.IngredientsRepository;
+import com.boldyrev.foodhelper.repositories.RecipeIngredientsRepository;
 import com.boldyrev.foodhelper.repositories.RecipesRepository;
 import com.boldyrev.foodhelper.services.ImageS3Service;
 import com.boldyrev.foodhelper.services.IngredientsService;
@@ -26,6 +28,10 @@ public class RecipesServiceImpl implements RecipesService {
     private final ImageS3Service imageService;
     private final IngredientsService ingredientsService;
 
+    private final IngredientsRepository ingredientsRepository;
+
+    private final RecipeIngredientsRepository recipeIngredientsRepository;
+
     private Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Value("${s3.bucket.name}")
@@ -36,10 +42,14 @@ public class RecipesServiceImpl implements RecipesService {
 
     @Autowired
     public RecipesServiceImpl(RecipesRepository recipesRepository,
-        ImageS3Service imageService, IngredientsService ingredientsService) {
+        ImageS3Service imageService, IngredientsService ingredientsService,
+        IngredientsRepository ingredientsRepository,
+        RecipeIngredientsRepository recipeIngredientsRepository) {
         this.recipesRepository = recipesRepository;
         this.imageService = imageService;
         this.ingredientsService = ingredientsService;
+        this.ingredientsRepository = ingredientsRepository;
+        this.recipeIngredientsRepository = recipeIngredientsRepository;
     }
 
     @Override
@@ -95,6 +105,7 @@ public class RecipesServiceImpl implements RecipesService {
     @Override
     @Transactional
     public Recipe save(Recipe recipe) {
+        //todo запретить дубликаты
         log.debug("Saving recipe with title={}", recipe.getTitle());
         enrich(recipe);
         return recipesRepository.save(recipe);
@@ -104,18 +115,29 @@ public class RecipesServiceImpl implements RecipesService {
     @Transactional
     public void update(int id, Recipe recipe) {
         Recipe storedRecipe = this.findById(id);
-
         log.debug("Updating recipe with title={} and id={}", storedRecipe.getTitle(),
             storedRecipe.getId());
 
-        storedRecipe.setIngredients(recipe.getIngredients());
-        storedRecipe.setImageLink(recipe.getImageLink());
-        storedRecipe.setDescription(recipe.getDescription());
+        recipe.getRecipeIngredients().forEach(r -> r.setRecipe(storedRecipe));
+
         storedRecipe.setTitle(recipe.getTitle());
+        storedRecipe.setDescription(recipe.getDescription());
         storedRecipe.setCategory(recipe.getCategory());
         storedRecipe.setCreator(recipe.getCreator());
-        storedRecipe.setImagePath(recipe.getImagePath());
+
+        //Updating recipes
+        storedRecipe.getRecipeIngredients().forEach(r -> {
+            r.setIngredient(null);
+            r.setRecipe(null);
+            r.setId(null);
+        });
+
+        recipeIngredientsRepository.deleteAllByRecipeId(storedRecipe.getId());
+
+        //todo batch save
+        storedRecipe.setRecipeIngredients(recipe.getRecipeIngredients());
     }
+
 
     @Override
     @Transactional
@@ -125,10 +147,10 @@ public class RecipesServiceImpl implements RecipesService {
     }
 
     public Recipe enrich(Recipe recipe) {
-        String image = imageService.save(bucketName, imagePath, recipe.getImageLink());
-
+        //String image = imageService.save(bucketName, imagePath, recipe.getImageLink());
+        recipe.getRecipeIngredients().stream().forEach(r -> r.setRecipe(recipe));
         recipe.setCreatedAt(LocalDateTime.now());
-        recipe.setImagePath(image);
+        recipe.setImagePath("default");
 
         return recipe;
     }

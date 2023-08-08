@@ -2,8 +2,10 @@ package com.boldyrev.foodhelper.util.mappers;
 
 import com.boldyrev.foodhelper.dto.RecipeCategoryDTO;
 import com.boldyrev.foodhelper.dto.RecipeDTO;
+import com.boldyrev.foodhelper.dto.RecipeImageDTO;
 import com.boldyrev.foodhelper.models.Recipe;
 import com.boldyrev.foodhelper.models.RecipeCategory;
+import com.boldyrev.foodhelper.services.RecipesService;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,9 @@ public abstract class RecipeMapper {
     @Autowired
     protected RecipeIngredientMapper recipeIngredientMapper;
 
+    @Autowired
+    protected RecipesService recipesService;
+
     @Mapping(target = "creator", expression = "java(userMapper.userDTOToUser(recipe.getCreator()))")
     @Mapping(target = "category", expression = "java(categoryMapper.categoryDTOToCategory(recipe.getCategory()))")
     @Mapping(target = "recipeIngredients", expression = "java(recipe.getRecipeIngredients().stream().map(r -> recipeIngredientMapper.dtoToRecipeIngredient(r)).collect(Collectors.toSet()))")
@@ -29,5 +34,6 @@ public abstract class RecipeMapper {
     @Mapping(target = "recipeIngredients", expression = "java(recipe.getRecipeIngredients().stream().map(r -> recipeIngredientMapper.recipeIngredientToDTO(r)).collect(Collectors.toSet()))")
     public abstract RecipeDTO recipeToRecipeDTO(Recipe recipe);
 
+    public abstract RecipeImageDTO recipeToImageDTO(Recipe recipe);
 
 }

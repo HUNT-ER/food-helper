@@ -2,7 +2,6 @@ package com.boldyrev.foodhelper.controllers;
 
 import com.boldyrev.foodhelper.controllers.responses.CustomResponse;
 import com.boldyrev.foodhelper.dto.RecipeDTO;
-import com.boldyrev.foodhelper.dto.transfer.Exist;
 import com.boldyrev.foodhelper.dto.transfer.NewRecipe;
 import com.boldyrev.foodhelper.services.RecipesService;
 import com.boldyrev.foodhelper.util.mappers.RecipeMapper;
@@ -22,7 +21,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/v1/recipes")
@@ -95,16 +96,43 @@ public class RecipesController {
                 .build());
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<CustomResponse> deleteById(@PathVariable("id") @Min(1) Integer id) {
-
-        recipesService.delete(id);
+    @GetMapping("{id}/image")
+    public ResponseEntity<CustomResponse> getImageById(@PathVariable("id") Integer id) {
 
         return ResponseEntity.ok()
             .contentType(MediaType.APPLICATION_JSON)
             .body(CustomResponse.builder()
                 .httpStatus(HttpStatus.OK)
-                .message(String.format("Recipe with id=%d was deleted or not exists", id))
+                .body(recipeMapper.recipeToImageDTO(recipesService.getImageLinkByRecipeId(id)))
                 .build());
     }
-}
+
+
+    @PutMapping("{id}/image")
+    public ResponseEntity<CustomResponse> editImageById(@PathVariable("id") Integer id,
+        @RequestParam(name = "image", required = true) MultipartFile image) {
+
+        recipesService.addImage(id, image);
+
+        return ResponseEntity.ok()
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(CustomResponse.builder()
+                .message(String.format("Image for recipe with id=%d was saved", id))
+                .httpStatus(HttpStatus.OK)
+                .build());
+    }
+
+
+        @DeleteMapping("/{id}")
+        public ResponseEntity<CustomResponse> deleteById (@PathVariable("id") @Min(1) Integer id){
+
+            recipesService.delete(id);
+
+            return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(CustomResponse.builder()
+                    .httpStatus(HttpStatus.OK)
+                    .message(String.format("Recipe with id=%d was deleted or not exists", id))
+                    .build());
+        }
+    }

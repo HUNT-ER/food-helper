@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 @Component
 public class MinioImageS3Service implements ImageS3Service {
@@ -33,13 +34,11 @@ public class MinioImageS3Service implements ImageS3Service {
     }
 
     @Override
-    public String save(String bucket, String path, String downloadFileLink) {
-
+    public String save(String bucket, String path, MultipartFile imageFile) {
         try {
-            log.debug("Saving image in {}/{}", bucket, path);
-            return imageRepository.save(bucket, path, downloadFileLink);
+            return imageRepository.save(bucket, path, imageFile);
         } catch (IOException e) {
-            log.error("Failed to download image by link={}", downloadFileLink);
+            log.error("Failed to save image {}", imageFile);
             throw new ImageNotSavedException(e.getMessage());
         }
 
@@ -47,19 +46,11 @@ public class MinioImageS3Service implements ImageS3Service {
 
     @Override
     public String getDownloadLink(String bucket, String path) {
-        log.debug("Getting image download link from minio storage {}/{}", bucket, path);
         return imageRepository.getDownloadLink(bucket, path);
     }
 
     @Override
-    public void update(String bucket, String path, String downloadFileLink) {
-        log.debug("Updating image");
-        save(bucket, path, downloadFileLink);
-    }
-
-    @Override
     public void delete(String bucket, String path) {
-        log.debug("Deleting image in path {}/{}", bucket, path);
         imageRepository.delete(bucket, path);
     }
 

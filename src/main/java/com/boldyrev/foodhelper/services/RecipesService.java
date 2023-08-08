@@ -1,22 +1,22 @@
 package com.boldyrev.foodhelper.services;
 
-import com.boldyrev.foodhelper.models.Ingredient;
 import com.boldyrev.foodhelper.models.Recipe;
 import java.util.List;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface RecipesService {
 
     Recipe findById(int id);
 
-    Recipe findByTitle(String title);
+    Recipe getImageLinkByRecipeId(int id);
 
     List<Recipe> findAll();
-
-    List<Recipe> findAllByIngredients(List<Ingredient> ingredients);
 
     Recipe save(Recipe recipe);
 
     void update(int id, Recipe recipe);
+
+    void addImage(int id, MultipartFile imageFile);
 
     void delete(int id);
 }

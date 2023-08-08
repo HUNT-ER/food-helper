@@ -2,13 +2,10 @@ package com.boldyrev.foodhelper.services.impl;
 
 import com.boldyrev.foodhelper.exceptions.EmptyDataException;
 import com.boldyrev.foodhelper.exceptions.EntityNotFoundException;
-import com.boldyrev.foodhelper.models.Ingredient;
 import com.boldyrev.foodhelper.models.Recipe;
-import com.boldyrev.foodhelper.repositories.IngredientsRepository;
 import com.boldyrev.foodhelper.repositories.RecipeIngredientsRepository;
 import com.boldyrev.foodhelper.repositories.RecipesRepository;
 import com.boldyrev.foodhelper.services.ImageS3Service;
-import com.boldyrev.foodhelper.services.IngredientsService;
 import com.boldyrev.foodhelper.services.RecipesService;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @PropertySource("classpath:s3minio.properties")
@@ -26,29 +24,18 @@ public class RecipesServiceImpl implements RecipesService {
 
     private final RecipesRepository recipesRepository;
     private final ImageS3Service imageService;
-    private final IngredientsService ingredientsService;
-
-    private final IngredientsRepository ingredientsRepository;
-
     private final RecipeIngredientsRepository recipeIngredientsRepository;
-
     private Logger log = LoggerFactory.getLogger(this.getClass());
-
     @Value("${s3.bucket.name}")
     private String bucketName;
-
     @Value("${s3.path.recipes}")
     private String imagePath;
 
     @Autowired
     public RecipesServiceImpl(RecipesRepository recipesRepository,
-        ImageS3Service imageService, IngredientsService ingredientsService,
-        IngredientsRepository ingredientsRepository,
-        RecipeIngredientsRepository recipeIngredientsRepository) {
+        ImageS3Service imageService, RecipeIngredientsRepository recipeIngredientsRepository) {
         this.recipesRepository = recipesRepository;
         this.imageService = imageService;
-        this.ingredientsService = ingredientsService;
-        this.ingredientsRepository = ingredientsRepository;
         this.recipeIngredientsRepository = recipeIngredientsRepository;
     }
 
@@ -61,16 +48,21 @@ public class RecipesServiceImpl implements RecipesService {
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public Recipe findByTitle(String title) {
-        log.debug("Getting Recipe with title={}", title);
-        return recipesRepository.findByTitleIgnoreCase(title).orElseThrow(
-            () -> new EntityNotFoundException(
-                String.format("Recipe with title=%s not found.", title)));
+    public Recipe getImageLinkByRecipeId(int id) {
+        log.debug("Getting image for recipe with id={}", id);
+        Recipe recipe = findById(id);
+
+        if (recipe.getImagePath() != null) {
+            recipe.setImageLink(imageService.getDownloadLink(bucketName, recipe.getImagePath()));
+        }
+
+        log.debug("Image download link for recipe with id={} : {}", id, recipe.getImageLink());
+        return recipe;
     }
 
     @Override
     @Transactional(readOnly = true)
+
     public List<Recipe> findAll() {
         log.debug("Getting all Recipes");
 
@@ -82,24 +74,6 @@ public class RecipesServiceImpl implements RecipesService {
         }
 
         return recipes;
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<Recipe> findAllByIngredients(List<Ingredient> ingredients) {
-        log.debug("Finding Recipes by Ingredients");
-
-        List<Recipe> recipes = recipesRepository.findAllByIngredients(
-            ingredients.stream().map(x -> x.getId()).distinct().toList());
-
-        if (recipes.isEmpty()) {
-            log.debug("Recipes by ingredients not found");
-            throw new EmptyDataException("Recipes by ingredients not found");
-        }
-
-        return recipes;
-
-        //todo засунуть в Query ингредиент
     }
 
     @Override
@@ -126,32 +100,46 @@ public class RecipesServiceImpl implements RecipesService {
         storedRecipe.setCreator(recipe.getCreator());
 
         //Updating recipes
-        storedRecipe.getRecipeIngredients().forEach(r -> {
-            r.setIngredient(null);
-            r.setRecipe(null);
-            r.setId(null);
-        });
-
-        recipeIngredientsRepository.deleteAllByRecipeId(storedRecipe.getId());
+        deleteOldIngredients(storedRecipe);
 
         //todo batch save
         storedRecipe.setRecipeIngredients(recipe.getRecipeIngredients());
     }
 
+    @Override
+    @Transactional
+    public void addImage(int id, MultipartFile imageFile) {
+        Recipe recipe = findById(id);
+
+        String newImagePath = imageService.save(bucketName, imagePath + id + "/", imageFile);
+        if (recipe.getImagePath() != null) {
+            imageService.delete(bucketName, recipe.getImagePath());
+        }
+        recipe.setImagePath(newImagePath);
+    }
 
     @Override
     @Transactional
     public void delete(int id) {
         log.debug("Deleting Recipe with id={}", id);
         recipesRepository.deleteById(id);
+        imageService.delete(bucketName, imagePath + id);
     }
 
     public Recipe enrich(Recipe recipe) {
-        //String image = imageService.save(bucketName, imagePath, recipe.getImageLink());
         recipe.getRecipeIngredients().stream().forEach(r -> r.setRecipe(recipe));
         recipe.setCreatedAt(LocalDateTime.now());
-        recipe.setImagePath("default");
 
         return recipe;
+    }
+
+    public void deleteOldIngredients(Recipe recipe) {
+        recipe.getRecipeIngredients().forEach(r -> {
+            r.setIngredient(null);
+            r.setRecipe(null);
+            r.setId(null);
+        });
+
+        recipeIngredientsRepository.deleteAllByRecipeId(recipe.getId());
     }
 }

@@ -1,12 +1,11 @@
 package com.boldyrev.foodhelper.repositories.impl;
 
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.PutObjectResult;
+import com.boldyrev.foodhelper.exceptions.ImageNotSavedException;
 import com.boldyrev.foodhelper.repositories.ImageS3Repository;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
@@ -18,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 @Component
 public class MinioImageS3Repository implements ImageS3Repository {
@@ -33,17 +33,24 @@ public class MinioImageS3Repository implements ImageS3Repository {
     }
 
     @Override
-    public String save(String bucket, String path, String downloadFileLink) {
-        File image = downloadFile(downloadFileLink);
-        String pathForSave = path + image.getName();
+    public String save(String bucket, String path, MultipartFile imageFile) {
 
-        log.debug("Saving image in storage");
-        PutObjectResult result = s3Client.putObject(bucket, pathForSave, image);
-        log.debug("Image successfully saved to path: {}", pathForSave);
+        try {
+            File image = convertToFile(imageFile);
+            String pathForSave = path + image.getName();
 
-        deleteTemporalImage(image);
+            log.debug("Saving image in storage");
 
-        return pathForSave;
+            s3Client.putObject(bucket, pathForSave, image);
+
+            log.debug("Image successfully saved to path: {}", pathForSave);
+
+            deleteTemporalImage(image);
+
+            return pathForSave;
+        } catch (IOException e) {
+            throw new ImageNotSavedException(e.getMessage());
+        }
     }
 
     @Override
@@ -53,30 +60,22 @@ public class MinioImageS3Repository implements ImageS3Repository {
     }
 
     @Override
-    public void update(String bucket, String path, String downloadFileLink) {
-        log.debug("Updating image");
-        save(bucket, path, downloadFileLink);
-    }
-
-    @Override
     public void delete(String bucket, String path) {
         log.debug("Deleting image in path {}/{}", bucket, path);
         s3Client.deleteObject(bucket, path);
     }
 
-    private File downloadFile(String downloadFileLink) {
-        ReadableByteChannel readableByteChannel = null;
-        FileChannel fileChannel = null;
-        String fileName = UUID.randomUUID() + ".jpeg";
-        try {
-            log.debug("Download image: {}", downloadFileLink);
-            readableByteChannel = Channels.newChannel(new URL(downloadFileLink).openStream());
-            fileChannel = new FileOutputStream(fileName).getChannel();
+    private File convertToFile(MultipartFile file) throws IOException {
+        String fileName = UUID.randomUUID() + ".jpg";
+        log.debug("Converting image: {}", fileName);
+
+        try (ReadableByteChannel readableByteChannel = Channels.newChannel(file.getInputStream());
+            FileChannel fileChannel = new FileOutputStream(fileName).getChannel()) {
+
             fileChannel.transferFrom(readableByteChannel, 0, Integer.MAX_VALUE);
-        } catch (IOException e) {
-            log.debug("Unable to download image from link: {}", downloadFileLink);
+
+            return new File(fileName);
         }
-        return new File(fileName);
     }
 
     private void deleteTemporalImage(File file) {
@@ -84,7 +83,7 @@ public class MinioImageS3Repository implements ImageS3Repository {
             log.debug("Deleting temporal image file: {}", file.getAbsolutePath());
             Files.delete(Path.of(file.getAbsolutePath()));
         } catch (IOException e) {
-            log.debug("Temporal image file not deleted in path: {}", file.getAbsolutePath());
+            log.error("Temporal image file not deleted in path: {}, Cause: {}", file.getAbsolutePath(), e.getMessage());
         }
         log.debug("Temporal image file was deleted: {}", file.getAbsolutePath());
     }

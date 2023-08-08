@@ -1,5 +1,6 @@
 package com.boldyrev.foodhelper.exception_handling;
 
+import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.boldyrev.foodhelper.exceptions.EmptyDataException;
 import com.boldyrev.foodhelper.exceptions.EntityAlreadyExistsException;
 import com.boldyrev.foodhelper.exceptions.EntityNotFoundException;
@@ -46,4 +47,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 //        return ResponseEntity.badRequest()
 //            .body(new ErrorResponse("This object already exists", HttpStatus.BAD_REQUEST));
 //    }
+
+    @ExceptionHandler(AmazonS3Exception.class)
+    public ResponseEntity<ErrorResponse> handeException(AmazonS3Exception e) {
+        return ResponseEntity.badRequest()
+            .body(new ErrorResponse(e.getMessage(), HttpStatus.BAD_REQUEST));
+    }
 }

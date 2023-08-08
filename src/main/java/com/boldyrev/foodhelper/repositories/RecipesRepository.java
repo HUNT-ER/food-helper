@@ -3,6 +3,8 @@ package com.boldyrev.foodhelper.repositories;
 import com.boldyrev.foodhelper.models.Recipe;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,7 +14,7 @@ public interface RecipesRepository extends JpaRepository<Recipe, Integer> {
     Optional<Recipe> findByTitleIgnoreCase(String title);
 
     @Query(value = """
-        SELECT r 
+        SELECT DISTINCT r 
         FROM Recipe r 
         JOIN FETCH r.category c
         JOIN FETCH c.parentCategory 
@@ -23,14 +25,14 @@ public interface RecipesRepository extends JpaRepository<Recipe, Integer> {
     List<Recipe> findAllByIngredients(@Param("ingredients") List<Integer> ingredients);
 
     @Query(value = """      
-        SELECT r 
+        SELECT DISTINCT r 
         FROM Recipe r 
         JOIN FETCH r.category c
         JOIN FETCH c.parentCategory 
         JOIN FETCH r.creator 
         LEFT JOIN FETCH r.recipeIngredients i
         LEFT JOIN FETCH i.id.ingredient""")
-    List<Recipe> findAll();
+    Page<Recipe> findAll(Pageable pageable);
 
     @Query("""
         SELECT r 

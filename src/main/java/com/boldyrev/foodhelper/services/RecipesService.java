@@ -2,6 +2,7 @@ package com.boldyrev.foodhelper.services;
 
 import com.boldyrev.foodhelper.models.Recipe;
 import java.util.List;
+import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface RecipesService {
@@ -10,7 +11,7 @@ public interface RecipesService {
 
     Recipe getImageLinkByRecipeId(int id);
 
-    List<Recipe> findAll();
+    Page<Recipe> findAll(int page, int size);
 
     Recipe save(Recipe recipe);
 

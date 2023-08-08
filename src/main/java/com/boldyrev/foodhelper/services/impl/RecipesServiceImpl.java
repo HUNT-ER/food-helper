@@ -8,12 +8,14 @@ import com.boldyrev.foodhelper.repositories.RecipesRepository;
 import com.boldyrev.foodhelper.services.ImageS3Service;
 import com.boldyrev.foodhelper.services.RecipesService;
 import java.time.LocalDateTime;
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -62,11 +64,11 @@ public class RecipesServiceImpl implements RecipesService {
 
     @Override
     @Transactional(readOnly = true)
-
-    public List<Recipe> findAll() {
+    public Page<Recipe> findAll(int page, int size) {
         log.debug("Getting all Recipes");
 
-        List<Recipe> recipes = recipesRepository.findAll();
+        Page<Recipe> recipes = recipesRepository.findAll(
+            PageRequest.of(page, size, Sort.by("title")));
 
         if (recipes.isEmpty()) {
             log.debug("Recipes not found");

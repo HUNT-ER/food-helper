@@ -7,8 +7,8 @@ import com.boldyrev.foodhelper.services.RecipesService;
 import com.boldyrev.foodhelper.util.mappers.RecipeMapper;
 import com.boldyrev.foodhelper.util.validators.RecipeValidator;
 import jakarta.validation.constraints.Min;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -43,22 +43,19 @@ public class RecipesController {
         this.recipeValidator = recipeValidator;
     }
 
-    //todo добавить пагинацию
     @GetMapping
-    public ResponseEntity<CustomResponse> getAll() {
-        List<RecipeDTO> recipeList = recipesService.findAll().stream()
-            .map(recipeMapper::recipeToRecipeDTO).toList();
+    public ResponseEntity<?> getAll(@RequestParam(defaultValue = "0") Integer page,
+        @RequestParam(defaultValue = "5") Integer size) {
+        Page<RecipeDTO> recipes = recipesService.findAll(page, size)
+            .map(recipeMapper::recipeToRecipeDTO);
 
         return ResponseEntity.ok()
             .contentType(MediaType.APPLICATION_JSON)
-            .body(CustomResponse.builder()
-                .httpStatus(HttpStatus.OK)
-                .body(recipeList)
-                .build());
+            .body(recipes);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CustomResponse> getById(@PathVariable("id") @Min(1) Integer id) {
+    public ResponseEntity<?> getById(@PathVariable("id") @Min(1) Integer id) {
 
         return ResponseEntity.ok()
             .contentType(MediaType.APPLICATION_JSON)
@@ -69,7 +66,7 @@ public class RecipesController {
     }
 
     @PostMapping
-    public ResponseEntity<CustomResponse> create(
+    public ResponseEntity<?> create(
         @RequestBody @Validated(NewRecipe.class) RecipeDTO recipeDTO, BindingResult errors) {
         recipeValidator.validate(recipeDTO, errors);
 
@@ -82,7 +79,7 @@ public class RecipesController {
 
     //todo переделать на пут /recipes/7, частичное обновление тоже сделать через пут, ex. /recipes/7/ingredients
     @PutMapping("/{id}")
-    public ResponseEntity<CustomResponse> editById(@PathVariable("id") @Min(1) Integer id,
+    public ResponseEntity<?> editById(@PathVariable("id") @Min(1) Integer id,
         @RequestBody @Validated(NewRecipe.class) RecipeDTO recipeDTO, BindingResult errors) {
         recipeValidator.validate(recipeDTO, errors);
 
@@ -97,7 +94,7 @@ public class RecipesController {
     }
 
     @GetMapping("{id}/image")
-    public ResponseEntity<CustomResponse> getImageById(@PathVariable("id") Integer id) {
+    public ResponseEntity<?> getImageById(@PathVariable("id") Integer id) {
 
         return ResponseEntity.ok()
             .contentType(MediaType.APPLICATION_JSON)
@@ -109,7 +106,7 @@ public class RecipesController {
 
 
     @PutMapping("{id}/image")
-    public ResponseEntity<CustomResponse> editImageById(@PathVariable("id") Integer id,
+    public ResponseEntity<?> editImageById(@PathVariable("id") Integer id,
         @RequestParam(name = "image", required = true) MultipartFile image) {
 
         recipesService.addImage(id, image);
@@ -123,16 +120,16 @@ public class RecipesController {
     }
 
 
-        @DeleteMapping("/{id}")
-        public ResponseEntity<CustomResponse> deleteById (@PathVariable("id") @Min(1) Integer id){
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteById(@PathVariable("id") @Min(1) Integer id) {
 
-            recipesService.delete(id);
+        recipesService.delete(id);
 
-            return ResponseEntity.ok()
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(CustomResponse.builder()
-                    .httpStatus(HttpStatus.OK)
-                    .message(String.format("Recipe with id=%d was deleted or not exists", id))
-                    .build());
-        }
+        return ResponseEntity.ok()
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(CustomResponse.builder()
+                .httpStatus(HttpStatus.OK)
+                .message(String.format("Recipe with id=%d was deleted or not exists", id))
+                .build());
     }
+}

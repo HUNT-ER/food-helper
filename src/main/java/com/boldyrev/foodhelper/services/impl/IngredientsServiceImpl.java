@@ -5,10 +5,11 @@ import com.boldyrev.foodhelper.exceptions.EntityNotFoundException;
 import com.boldyrev.foodhelper.models.Ingredient;
 import com.boldyrev.foodhelper.repositories.IngredientsRepository;
 import com.boldyrev.foodhelper.services.IngredientsService;
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,21 +34,14 @@ public class IngredientsServiceImpl implements IngredientsService {
                 String.format("Ingredient with id=%d not found.", id)));
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public Ingredient findByName(String name) {
-        log.debug("Getting ingredient with name={}", name);
-        return ingredientsRepository.findByNameIgnoreCase(name)
-            .orElseThrow(() -> new EntityNotFoundException(
-                String.format("Ingredient with name=%s not found.", name)));
-    }
 
     @Override
     @Transactional(readOnly = true)
-    public List<Ingredient> findAll() {
+    public Page<Ingredient> findAll(int page, int size) {
         log.debug("Getting all ingredients");
 
-        List<Ingredient> ingredients = ingredientsRepository.findAll();
+        Page<Ingredient> ingredients = ingredientsRepository.findAll(
+            PageRequest.of(page, size, Sort.by("name")));
 
         if (ingredients.isEmpty()) {
             log.debug("Ingredients not found");
@@ -67,8 +61,10 @@ public class IngredientsServiceImpl implements IngredientsService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Ingredient> searchByName(String name) {
-        List<Ingredient> ingredients = ingredientsRepository.findByNameContainingIgnoreCase(name);
+    public Page<Ingredient> searchByName(String name, int page, int size) {
+        log.debug("Getting ingredients with name like '{}'", name);
+        Page<Ingredient> ingredients = ingredientsRepository.findByNameContainingIgnoreCase(name,
+            PageRequest.of(page, size, Sort.by("name")));
 
         if (ingredients.isEmpty()) {
             log.debug("Ingredients by name not found");
@@ -87,13 +83,6 @@ public class IngredientsServiceImpl implements IngredientsService {
         log.debug("Updating ingredient with id={} and name={}", storedIngredient.getId(),
             storedIngredient.getName());
 
-//        if (ingredient.getName() != null) {
-//            foundIngredient.setName(ingredient.getName());
-//        }
-//
-//        if (ingredient.getCategory() != null) {
-//            foundIngredient.setCategory(ingredient.getCategory());
-//        }
         storedIngredient.setName(ingredient.getName());
         storedIngredient.setCategory(ingredient.getCategory());
     }

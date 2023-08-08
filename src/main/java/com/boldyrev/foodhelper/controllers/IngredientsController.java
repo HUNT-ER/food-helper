@@ -2,15 +2,14 @@ package com.boldyrev.foodhelper.controllers;
 
 import com.boldyrev.foodhelper.controllers.responses.CustomResponse;
 import com.boldyrev.foodhelper.dto.IngredientDTO;
-import com.boldyrev.foodhelper.dto.transfer.Exist;
 import com.boldyrev.foodhelper.dto.transfer.NewIngredient;
 import com.boldyrev.foodhelper.models.Ingredient;
 import com.boldyrev.foodhelper.services.IngredientsService;
 import com.boldyrev.foodhelper.util.mappers.IngredientMapper;
 import com.boldyrev.foodhelper.util.validators.IngredientValidator;
 import jakarta.validation.constraints.Min;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -46,21 +45,18 @@ public class IngredientsController {
 
     //todo add pagination and sorting
     @GetMapping
-    public ResponseEntity<CustomResponse> getAll() {
-
-        List<IngredientDTO> ingredients = ingredientsService.findAll().stream()
-            .map(ingredientMapper::ingredientToIngredientDTO).toList();
+    public ResponseEntity<?> getAll(@RequestParam(defaultValue = "0") Integer page,
+        @RequestParam(defaultValue = "5") Integer size) {
+        Page<IngredientDTO> ingredients = ingredientsService.findAll(page, size)
+            .map(ingredientMapper::ingredientToIngredientDTO);
 
         return ResponseEntity.ok()
             .contentType(MediaType.APPLICATION_JSON)
-            .body(CustomResponse.builder()
-                .httpStatus(HttpStatus.OK)
-                .body(ingredients)
-                .build());
+            .body(ingredients);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CustomResponse> getById(@PathVariable("id") @Min(1) Integer id) {
+    public ResponseEntity<?> getById(@PathVariable("id") @Min(1) Integer id) {
 
         return ResponseEntity.ok()
             .contentType(MediaType.APPLICATION_JSON).body(CustomResponse.builder()
@@ -70,7 +66,7 @@ public class IngredientsController {
     }
 
     @PostMapping
-    public ResponseEntity<CustomResponse> create(
+    public ResponseEntity<?> create(
         @RequestBody @Validated(NewIngredient.class) IngredientDTO ingredientDTO,
         BindingResult errors) {
         ingredientValidator.validate(ingredientDTO, errors);
@@ -85,8 +81,9 @@ public class IngredientsController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CustomResponse> editById(@PathVariable("id") @Min(1) Integer id,
-        @RequestBody @Validated(NewIngredient.class) IngredientDTO ingredientDTO, BindingResult errors) {
+    public ResponseEntity<?> editById(@PathVariable("id") @Min(1) Integer id,
+        @RequestBody @Validated(NewIngredient.class) IngredientDTO ingredientDTO,
+        BindingResult errors) {
         ingredientValidator.validate(ingredientDTO, errors);
 
         ingredientsService.update(id, ingredientMapper.ingredientDTOToIngredient(ingredientDTO));
@@ -100,7 +97,7 @@ public class IngredientsController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<CustomResponse> deleteById(@PathVariable("id") @Min(1) Integer id) {
+    public ResponseEntity<?> deleteById(@PathVariable("id") @Min(1) Integer id) {
         ingredientsService.delete(id);
 
         return ResponseEntity.ok()
@@ -112,16 +109,14 @@ public class IngredientsController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<CustomResponse> searchByName(@RequestParam(value = "name") String name) {
-        //todo прикрутить пагинацию
-        List<IngredientDTO> ingredients = ingredientsService.searchByName(name).stream()
-            .map(ingredientMapper::ingredientToIngredientDTO).toList();
+    public ResponseEntity<?> searchByName(@RequestParam(value = "name") String name,
+        @RequestParam(defaultValue = "0") Integer page,
+        @RequestParam(defaultValue = "5") Integer size) {
+        Page<IngredientDTO> ingredients = ingredientsService.searchByName(name, page, size)
+            .map(ingredientMapper::ingredientToIngredientDTO);
 
         return ResponseEntity.ok()
             .contentType(MediaType.APPLICATION_JSON)
-            .body(CustomResponse.builder()
-                .httpStatus(HttpStatus.OK)
-                .body(ingredients)
-                .build());
+            .body(ingredients);
     }
 }

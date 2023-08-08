@@ -9,8 +9,6 @@ public interface RecipeCategoriesService {
 
     RecipeCategory findById(int id);
 
-    RecipeCategory findByName(String name);
-
     List<RecipeCategory> findAll();
 
     RecipeCategory save(RecipeCategory category);

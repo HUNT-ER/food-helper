@@ -34,15 +34,6 @@ public class RecipeCategoriesServiceImpl implements RecipeCategoriesService {
 
     @Override
     @Transactional(readOnly = true)
-    public RecipeCategory findByName(String name) {
-        log.debug("Getting recipe category with name={}", name);
-        return categoriesRepository.findByNameIgnoreCase(name).orElseThrow(
-            () -> new EntityNotFoundException(
-                String.format("Recipe category with name=%s not found.", name)));
-    }
-
-    @Override
-    @Transactional(readOnly = true)
     public List<RecipeCategory> findAll() {
         log.debug("Getting all recipe categories");
 
@@ -70,13 +61,6 @@ public class RecipeCategoriesServiceImpl implements RecipeCategoriesService {
 
         log.debug("Updating recipe category with id={} and name={}", storedCategory.getId(),
             storedCategory.getName());
-
-//        if (category.getName() != null) {
-//            storedCategory.setName(category.getName());
-//        }
-//        if (category.getParentCategory() != null) {
-//            storedCategory.setParentCategory(category.getParentCategory());
-//        }
 
         storedCategory.setName(category.getName());
         storedCategory.setParentCategory(category.getParentCategory());

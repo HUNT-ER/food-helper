@@ -8,8 +8,6 @@ public interface IngredientCategoriesService {
 
     IngredientCategory findById(int id);
 
-    IngredientCategory findByName(String name);
-
     List<IngredientCategory> findAll();
 
     IngredientCategory save(IngredientCategory category);

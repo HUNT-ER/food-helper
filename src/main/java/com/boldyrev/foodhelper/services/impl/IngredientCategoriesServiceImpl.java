@@ -35,15 +35,6 @@ public class IngredientCategoriesServiceImpl implements IngredientCategoriesServ
 
     @Override
     @Transactional(readOnly = true)
-    public IngredientCategory findByName(String name) {
-        log.debug("Getting ingredient category with name={}", name);
-        return categoriesRepository.findByNameIgnoreCase(name)
-            .orElseThrow(() -> new EntityNotFoundException(
-                String.format("Category with name=%s not found", name)));
-    }
-
-    @Override
-    @Transactional(readOnly = true)
     public List<IngredientCategory> findAll() {
         log.debug("Getting all ingredient categories");
 

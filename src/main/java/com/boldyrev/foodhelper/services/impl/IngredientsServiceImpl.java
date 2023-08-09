@@ -75,6 +75,20 @@ public class IngredientsServiceImpl implements IngredientsService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public Page<Ingredient> findAllByCategoryId(int id, int page, int size) {
+        Page<Ingredient> ingredients = ingredientsRepository.findAllByCategoryId(id,
+            PageRequest.of(page, size, Sort.by("name")));
+
+        if (ingredients.isEmpty()) {
+            log.debug("Ingredients by name not found");
+            throw new EmptyDataException("Ingredients not found");
+        }
+
+        return ingredients;
+    }
+
+    @Override
     @Transactional
     public void update(int id, Ingredient ingredient) {
 

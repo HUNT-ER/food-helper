@@ -15,6 +15,8 @@ public interface IngredientsService {
 
     Page<Ingredient> searchByName(String name, int page, int size);
 
+    Page<Ingredient> findAllByCategoryId(int id, int page, int size);
+
     void update(int id, Ingredient ingredient);
 
     void delete(int id);

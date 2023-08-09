@@ -79,9 +79,21 @@ public class RecipesServiceImpl implements RecipesService {
     }
 
     @Override
+    public Page<Recipe> findAllByCategoryId(int id, int page, int size) {
+        Page<Recipe> recipes = recipesRepository.findAllByCategoryId(id,
+            PageRequest.of(page, size, Sort.by("title")));
+
+        if (recipes.isEmpty()) {
+            log.debug("Recipes not found");
+            throw new EmptyDataException("Recipes not found");
+        }
+
+        return recipes;
+    }
+
+    @Override
     @Transactional
     public Recipe save(Recipe recipe) {
-        //todo запретить дубликаты
         log.debug("Saving recipe with title={}", recipe.getTitle());
         enrich(recipe);
         return recipesRepository.save(recipe);

@@ -46,5 +46,15 @@ public interface RecipesRepository extends JpaRepository<Recipe, Integer> {
         """)
     Optional<Recipe> findById(@Param("id") int id);
 
-
+    @Query("""
+        SELECT r 
+        FROM Recipe r 
+        JOIN FETCH r.category c
+        JOIN FETCH c.parentCategory 
+        JOIN FETCH r.creator 
+        LEFT JOIN FETCH r.recipeIngredients i
+        LEFT JOIN FETCH i.id.ingredient
+        WHERE c.id = :id
+        """)
+    Page<Recipe> findAllByCategoryId(@Param("id") int id, Pageable pageable);
 }

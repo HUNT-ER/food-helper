@@ -47,7 +47,7 @@ public interface RecipesRepository extends JpaRepository<Recipe, Integer> {
     Optional<Recipe> findById(@Param("id") int id);
 
     @Query("""
-        SELECT r 
+        SELECT DISTINCT r 
         FROM Recipe r 
         JOIN FETCH r.category c
         JOIN FETCH c.parentCategory 
@@ -57,4 +57,21 @@ public interface RecipesRepository extends JpaRepository<Recipe, Integer> {
         WHERE c.id = :id
         """)
     Page<Recipe> findAllByCategoryId(@Param("id") int id, Pageable pageable);
+
+    @Query("""
+        SELECT DISTINCT r 
+        FROM Recipe r 
+        JOIN FETCH r.category c
+        JOIN FETCH c.parentCategory 
+        JOIN FETCH r.creator 
+        LEFT JOIN FETCH r.recipeIngredients i
+        LEFT JOIN FETCH i.id.ingredient 
+        WHERE r.id IN(
+            SELECT r.id.recipe.id 
+            FROM RecipeIngredient r 
+            WHERE r.id.ingredient.id in :id
+            GROUP BY 1
+            HAVING COUNT(r.id.recipe.id) >= :count)
+        """)
+    Page<Recipe> findAllByIngredientsId(@Param("id") List<Integer> ingredients, @Param("count") int ingredientsCount, Pageable pageable);
 }

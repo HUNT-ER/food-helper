@@ -7,6 +7,7 @@ import com.boldyrev.foodhelper.services.RecipesService;
 import com.boldyrev.foodhelper.util.mappers.RecipeMapper;
 import com.boldyrev.foodhelper.util.validators.RecipeValidator;
 import jakarta.validation.constraints.Min;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -131,5 +132,18 @@ public class RecipesController {
                 .httpStatus(HttpStatus.OK)
                 .message(String.format("Recipe with id=%d was deleted or not exists", id))
                 .build());
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<?> search(@RequestParam("ingredient") List<Integer> ingredients,
+        @RequestParam(defaultValue = "0") Integer page,
+        @RequestParam(defaultValue = "5") Integer size) {
+
+        Page<RecipeDTO> recipes = recipesService.findAllByIngredientsId(ingredients, page, size)
+            .map(recipeMapper::recipeToRecipeDTO);
+
+        return ResponseEntity.ok()
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(recipes);
     }
 }

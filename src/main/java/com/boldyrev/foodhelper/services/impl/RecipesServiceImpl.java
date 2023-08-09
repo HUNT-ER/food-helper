@@ -8,6 +8,7 @@ import com.boldyrev.foodhelper.repositories.RecipesRepository;
 import com.boldyrev.foodhelper.services.ImageS3Service;
 import com.boldyrev.foodhelper.services.RecipesService;
 import java.time.LocalDateTime;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,9 +80,25 @@ public class RecipesServiceImpl implements RecipesService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<Recipe> findAllByCategoryId(int id, int page, int size) {
         Page<Recipe> recipes = recipesRepository.findAllByCategoryId(id,
             PageRequest.of(page, size, Sort.by("title")));
+
+        if (recipes.isEmpty()) {
+            log.debug("Recipes not found");
+            throw new EmptyDataException("Recipes not found");
+        }
+
+        return recipes;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Recipe> findAllByIngredientsId(List<Integer> ingredients, int page, int size) {
+        log.debug("Getting all recipes by Ingredients.id={}", ingredients);
+        Page<Recipe> recipes = recipesRepository.findAllByIngredientsId(ingredients,
+            ingredients.size(), PageRequest.of(page, size, Sort.by("title")));
 
         if (recipes.isEmpty()) {
             log.debug("Recipes not found");
@@ -123,6 +140,7 @@ public class RecipesServiceImpl implements RecipesService {
     @Override
     @Transactional
     public void addImage(int id, MultipartFile imageFile) {
+        log.debug("Saving image to recipe.id={}", id);
         Recipe recipe = findById(id);
 
         String newImagePath = imageService.save(bucketName, imagePath + id + "/", imageFile);
@@ -148,6 +166,7 @@ public class RecipesServiceImpl implements RecipesService {
     }
 
     public void deleteOldIngredients(Recipe recipe) {
+        log.debug("Deleting old ingredients from recipe.id={}", recipe.getId());
         recipe.getRecipeIngredients().forEach(r -> {
             r.setIngredient(null);
             r.setRecipe(null);

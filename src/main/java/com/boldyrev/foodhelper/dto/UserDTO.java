@@ -3,6 +3,7 @@ package com.boldyrev.foodhelper.dto;
 import com.boldyrev.foodhelper.dto.transfer.Exist;
 import com.boldyrev.foodhelper.dto.transfer.New;
 import com.boldyrev.foodhelper.dto.transfer.NewRecipe;
+import com.boldyrev.foodhelper.dto.transfer.NewUser;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -20,15 +21,15 @@ import org.springframework.validation.annotation.Validated;
 @JsonInclude(Include.NON_NULL)
 public class UserDTO {
 
-    @Null(groups = {New.class})
+    @Null(groups = {NewUser.class})
     @NotNull(groups = {NewRecipe.class})
     @JsonProperty("id")
     private Integer id;
 
-    @NotBlank(groups = {New.class, Exist.class})
+    @NotBlank(groups = {NewUser.class})
     @Pattern(message = "Username should have only a-zA-Z0-9_ symbols", regexp = "\\w+",
-        groups = {New.class, Exist.class})
-    @Size(min = 5, max = 25, groups = {New.class, Exist.class})
+        groups = {NewUser.class})
+    @Size(min = 5, max = 25, groups = {NewUser.class})
     @JsonProperty("username")
     private String username;
 }

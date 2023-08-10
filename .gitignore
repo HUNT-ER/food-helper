@@ -32,3 +32,4 @@ build/
 ### VS Code ###
 .vscode/
 /src/main/resources/s3minio.properties
+/src/test/java/com/boldyrev/foodhelper/Tests.java

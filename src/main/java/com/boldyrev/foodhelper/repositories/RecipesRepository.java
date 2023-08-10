@@ -12,18 +12,6 @@ import org.springframework.data.repository.query.Param;
 public interface RecipesRepository extends JpaRepository<Recipe, Integer> {
 
     Optional<Recipe> findByTitleIgnoreCase(String title);
-
-    @Query(value = """
-        SELECT DISTINCT r 
-        FROM Recipe r 
-        JOIN FETCH r.category c
-        JOIN FETCH c.parentCategory 
-        JOIN FETCH r.creator 
-        JOIN FETCH r.recipeIngredients i
-        JOIN FETCH i.id.ingredient
-        WHERE i.id IN :ingredients """)
-    List<Recipe> findAllByIngredients(@Param("ingredients") List<Integer> ingredients);
-
     @Query(value = """      
         SELECT DISTINCT r 
         FROM Recipe r 
@@ -33,7 +21,6 @@ public interface RecipesRepository extends JpaRepository<Recipe, Integer> {
         LEFT JOIN FETCH r.recipeIngredients i
         LEFT JOIN FETCH i.id.ingredient""")
     Page<Recipe> findAll(Pageable pageable);
-
     @Query("""
         SELECT r 
         FROM Recipe r 
@@ -45,7 +32,6 @@ public interface RecipesRepository extends JpaRepository<Recipe, Integer> {
         WHERE r.id = :id
         """)
     Optional<Recipe> findById(@Param("id") int id);
-
     @Query("""
         SELECT DISTINCT r 
         FROM Recipe r 
@@ -57,21 +43,31 @@ public interface RecipesRepository extends JpaRepository<Recipe, Integer> {
         WHERE c.id = :id
         """)
     Page<Recipe> findAllByCategoryId(@Param("id") int id, Pageable pageable);
-
+    @Query("""
+        SELECT DISTINCT r
+        FROM Recipe r
+        JOIN FETCH r.category c
+        JOIN FETCH c.parentCategory
+        JOIN FETCH r.creator
+        LEFT JOIN FETCH r.recipeIngredients i
+        LEFT JOIN FETCH i.id.ingredient
+        WHERE r.id IN(
+        SELECT r.id.recipe.id
+        FROM RecipeIngredient r
+        WHERE r.id.ingredient.id in :id
+        GROUP BY 1
+        HAVING COUNT(r.id.recipe.id) >= :count)
+        """)
+    Page<Recipe> findAllByIngredientsId(@Param("id") List<Integer> ingredients, @Param("count") int ingredientsCount, Pageable pageable);
     @Query("""
         SELECT DISTINCT r 
         FROM Recipe r 
         JOIN FETCH r.category c
         JOIN FETCH c.parentCategory 
-        JOIN FETCH r.creator 
+        JOIN FETCH r.creator u
         LEFT JOIN FETCH r.recipeIngredients i
-        LEFT JOIN FETCH i.id.ingredient 
-        WHERE r.id IN(
-            SELECT r.id.recipe.id 
-            FROM RecipeIngredient r 
-            WHERE r.id.ingredient.id in :id
-            GROUP BY 1
-            HAVING COUNT(r.id.recipe.id) >= :count)
+        LEFT JOIN FETCH i.id.ingredient
+        WHERE u.id = :id
         """)
-    Page<Recipe> findAllByIngredientsId(@Param("id") List<Integer> ingredients, @Param("count") int ingredientsCount, Pageable pageable);
+    Page<Recipe> findAllByUserId(@Param("id") int id, Pageable pageable);
 }

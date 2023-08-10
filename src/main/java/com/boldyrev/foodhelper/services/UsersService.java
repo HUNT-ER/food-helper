@@ -6,18 +6,10 @@ import java.util.Optional;
 
 public interface UsersService {
 
-    User findByUsername(String username);
-
     User findById(int id);
-
+    User findByUsername(String username);
     List<User> findAll();
-
-    User register(User user);
-
-    void update(int id, User user);
-
+    User signUp(User user);
+    User update(int id, User user);
     void delete(int id);
-
-
-
 }

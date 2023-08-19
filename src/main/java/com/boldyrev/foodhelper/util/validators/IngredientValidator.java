@@ -1,12 +1,9 @@
 package com.boldyrev.foodhelper.util.validators;
 
 import com.boldyrev.foodhelper.dto.IngredientDTO;
-import com.boldyrev.foodhelper.exceptions.EntityAlreadyExistsException;
 import com.boldyrev.foodhelper.exceptions.ValidationException;
-import com.boldyrev.foodhelper.models.Ingredient;
 import com.boldyrev.foodhelper.repositories.IngredientCategoriesRepository;
 import com.boldyrev.foodhelper.repositories.IngredientsRepository;
-import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;

@@ -28,7 +28,6 @@ public class IngredientsServiceImpl implements IngredientsService {
     @Override
     @Transactional(readOnly = true)
     public Ingredient findById(int id) {
-        log.debug("Getting ingredient with id={}", id);
         return ingredientsRepository.findById(id)
             .orElseThrow(() -> new EntityNotFoundException(
                 String.format("Ingredient with id=%d not found.", id)));
@@ -38,8 +37,6 @@ public class IngredientsServiceImpl implements IngredientsService {
     @Override
     @Transactional(readOnly = true)
     public Page<Ingredient> findAll(int page, int size) {
-        log.debug("Getting all ingredients");
-
         Page<Ingredient> ingredients = ingredientsRepository.findAll(
             PageRequest.of(page, size, Sort.by("name")));
 
@@ -54,20 +51,16 @@ public class IngredientsServiceImpl implements IngredientsService {
     @Override
     @Transactional
     public Ingredient save(Ingredient ingredient) {
-
-        log.debug("Saving ingredient with name={}", ingredient.getName());
         return ingredientsRepository.save(ingredient);
     }
 
     @Override
     @Transactional(readOnly = true)
     public Page<Ingredient> searchByName(String name, int page, int size) {
-        log.debug("Getting ingredients with name like '{}'", name);
         Page<Ingredient> ingredients = ingredientsRepository.findByNameContainingIgnoreCase(name,
             PageRequest.of(page, size, Sort.by("name")));
 
         if (ingredients.isEmpty()) {
-            log.debug("Ingredients by name not found");
             throw new EmptyDataException("Ingredients not found");
         }
 
@@ -81,7 +74,6 @@ public class IngredientsServiceImpl implements IngredientsService {
             PageRequest.of(page, size, Sort.by("name")));
 
         if (ingredients.isEmpty()) {
-            log.debug("Ingredients by name not found");
             throw new EmptyDataException("Ingredients not found");
         }
 
@@ -91,11 +83,7 @@ public class IngredientsServiceImpl implements IngredientsService {
     @Override
     @Transactional
     public void update(int id, Ingredient ingredient) {
-
         Ingredient storedIngredient = this.findById(id);
-
-        log.debug("Updating ingredient with id={} and name={}", storedIngredient.getId(),
-            storedIngredient.getName());
 
         storedIngredient.setName(ingredient.getName());
         storedIngredient.setCategory(ingredient.getCategory());
@@ -104,7 +92,6 @@ public class IngredientsServiceImpl implements IngredientsService {
     @Override
     @Transactional
     public void delete(int id) {
-        log.debug("Deleting ingredient with id={}", id);
         ingredientsRepository.deleteById(id);
     }
 }

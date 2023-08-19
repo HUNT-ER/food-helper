@@ -78,7 +78,6 @@ public class RecipesController {
             .build(), HttpStatus.CREATED);
     }
 
-    //todo переделать на пут /recipes/7, частичное обновление тоже сделать через пут, ex. /recipes/7/ingredients
     @PutMapping("/{id}")
     public ResponseEntity<?> editById(@PathVariable("id") @Min(1) Integer id,
         @RequestBody @Validated(NewRecipe.class) RecipeDTO recipeDTO, BindingResult errors) {

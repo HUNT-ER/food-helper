@@ -36,12 +36,10 @@ public class IngredientCategoriesServiceImpl implements IngredientCategoriesServ
     @Override
     @Transactional(readOnly = true)
     public List<IngredientCategory> findAll() {
-        log.debug("Getting all ingredient categories");
 
         List<IngredientCategory> categories = categoriesRepository.findAll();
 
         if (categories.isEmpty()) {
-            log.debug("Ingredient categories not found");
             throw new EmptyDataException("Ingredient categories not found");
         }
 
@@ -51,7 +49,6 @@ public class IngredientCategoriesServiceImpl implements IngredientCategoriesServ
     @Override
     @Transactional
     public IngredientCategory save(IngredientCategory category) {
-        log.debug("Saving ingredient category with name={}", category.getName());
         return categoriesRepository.save(category);
     }
 
@@ -60,16 +57,6 @@ public class IngredientCategoriesServiceImpl implements IngredientCategoriesServ
     public void update(int id, IngredientCategory category) {
         IngredientCategory storedCategory = this.findById(id);
 
-        log.debug("Updating ingredient category with id={} and name={}", storedCategory.getId(),
-            storedCategory.getName());
-
-//        if (category.getName() != null) {
-//            storedCategory.setName(category.getName());
-//
-//        }
-//        if (category.getParentCategory() != null) {
-//            storedCategory.setParentCategory(category.getParentCategory());
-//        }
         storedCategory.setName(category.getName());
         storedCategory.setParentCategory(category.getParentCategory());
     }
@@ -77,8 +64,6 @@ public class IngredientCategoriesServiceImpl implements IngredientCategoriesServ
     @Override
     @Transactional
     public void delete(int id) {
-        log.debug("Deleting ingredient category with id={}", id);
-
         categoriesRepository.deleteById(findById(id).getId());
     }
 }

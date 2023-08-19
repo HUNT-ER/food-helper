@@ -26,7 +26,6 @@ public class RecipeCategoriesServiceImpl implements RecipeCategoriesService {
     @Override
     @Transactional(readOnly = true)
     public RecipeCategory findById(int id) {
-        log.debug("Getting recipe category with id={}", id);
         return categoriesRepository.findById(id).orElseThrow(
             () -> new EntityNotFoundException(
                 String.format("Recipe category with id=%d not found.", id)));
@@ -35,12 +34,9 @@ public class RecipeCategoriesServiceImpl implements RecipeCategoriesService {
     @Override
     @Transactional(readOnly = true)
     public List<RecipeCategory> findAll() {
-        log.debug("Getting all recipe categories");
-
         List<RecipeCategory> recipeCategories = categoriesRepository.findAll();
 
         if (recipeCategories.isEmpty()) {
-            log.debug("Recipe categories not found");
             throw new EmptyDataException("Recipe categories not found");
         }
 
@@ -50,7 +46,6 @@ public class RecipeCategoriesServiceImpl implements RecipeCategoriesService {
     @Override
     @Transactional
     public RecipeCategory save(RecipeCategory category) {
-        log.debug("Saving recipe category with name={}", category.getName());
         return categoriesRepository.save(category);
     }
 
@@ -58,10 +53,6 @@ public class RecipeCategoriesServiceImpl implements RecipeCategoriesService {
     @Transactional
     public void update(int id, RecipeCategory category) {
         RecipeCategory storedCategory = findById(id);
-
-        log.debug("Updating recipe category with id={} and name={}", storedCategory.getId(),
-            storedCategory.getName());
-
         storedCategory.setName(category.getName());
         storedCategory.setParentCategory(category.getParentCategory());
     }
@@ -69,7 +60,6 @@ public class RecipeCategoriesServiceImpl implements RecipeCategoriesService {
     @Override
     @Transactional
     public void delete(int id) {
-        log.debug("Deleting recipe category with id={}", id);
         categoriesRepository.deleteById(id);
     }
 }

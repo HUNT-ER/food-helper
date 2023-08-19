@@ -31,14 +31,13 @@ public class UsersServiceImpl implements UsersService {
     @Override
     @Transactional(readOnly = true)
     public User findById(int id) {
-        log.debug("Getting user with id={}", id);
         return usersRepository.findById(id).orElseThrow(
             () -> new EntityNotFoundException(String.format("User with id '%d' not found", id)));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public User findByUsername(String username) {
-        log.debug("Getting user with username={}", username);
         return usersRepository.findByUsernameIgnoreCase(username).orElseThrow(
             () -> new EntityNotFoundException(
                 String.format("User with username='%s' not found", username)));
@@ -47,8 +46,6 @@ public class UsersServiceImpl implements UsersService {
     @Override
     @Transactional(readOnly = true)
     public List<User> findAll() {
-        log.debug("Getting all users");
-
         List<User> users = usersRepository.findAll();
 
         if (users.isEmpty()) {
@@ -62,22 +59,19 @@ public class UsersServiceImpl implements UsersService {
     @Override
     @Transactional
     public User signUp(User user) {
-        log.info("Register new user with username '{}'", user.getUsername());
         return usersRepository.save(enrich(user));
     }
 
     @Override
     @Transactional
     public User update(int id, User user) {
-        log.debug("Updating user with id={}", id);
-
+        //todo user update
         return user;
     }
 
     @Override
     @Transactional
     public void delete(int id) {
-        log.debug("Deleting user with id={}", id);
         usersRepository.deleteById(id);
     }
 

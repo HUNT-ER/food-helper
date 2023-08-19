@@ -45,34 +45,29 @@ public class RecipesServiceImpl implements RecipesService {
     @Override
     @Transactional(readOnly = true)
     public Recipe findById(int id) {
-        log.debug("Getting Recipe with id={}", id);
         return recipesRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(
             String.format("Recipe with id=%d not found.", id)));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Recipe getImageLinkByRecipeId(int id) {
-        log.debug("Getting image for recipe with id={}", id);
         Recipe recipe = findById(id);
 
         if (recipe.getImagePath() != null) {
             recipe.setImageLink(imageService.getDownloadLink(bucketName, recipe.getImagePath()));
         }
 
-        log.debug("Image download link for recipe with id={} : {}", id, recipe.getImageLink());
         return recipe;
     }
 
     @Override
     @Transactional(readOnly = true)
     public Page<Recipe> findAll(int page, int size) {
-        log.debug("Getting all Recipes");
-
         Page<Recipe> recipes = recipesRepository.findAll(
             PageRequest.of(page, size, Sort.by("title")));
 
         if (recipes.isEmpty()) {
-            log.debug("Recipes not found");
             throw new EmptyDataException("Recipes not found");
         }
 
@@ -86,7 +81,6 @@ public class RecipesServiceImpl implements RecipesService {
             PageRequest.of(page, size, Sort.by("title")));
 
         if (recipes.isEmpty()) {
-            log.debug("Recipes not found");
             throw new EmptyDataException("Recipes not found");
         }
 
@@ -96,7 +90,6 @@ public class RecipesServiceImpl implements RecipesService {
     @Override
     @Transactional(readOnly = true)
     public Page<Recipe> findAllByIngredientsId(List<Integer> ingredients, int page, int size) {
-        log.debug("Getting all recipes by Ingredients.id={}", ingredients);
         Page<Recipe> recipes = recipesRepository.findAllByIngredientsId(ingredients,
             ingredients.size(), PageRequest.of(page, size, Sort.by("title")));
 
@@ -109,6 +102,7 @@ public class RecipesServiceImpl implements RecipesService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<Recipe> findAllByUserId(int id, int page, int size) {
         Page<Recipe> recipes = recipesRepository.findAllByUserId(id,
             PageRequest.of(page, size, Sort.by("title")));
@@ -124,7 +118,6 @@ public class RecipesServiceImpl implements RecipesService {
     @Override
     @Transactional
     public Recipe save(Recipe recipe) {
-        log.debug("Saving recipe with title={}", recipe.getTitle());
         enrich(recipe);
         return recipesRepository.save(recipe);
     }
@@ -133,8 +126,6 @@ public class RecipesServiceImpl implements RecipesService {
     @Transactional
     public void update(int id, Recipe recipe) {
         Recipe storedRecipe = this.findById(id);
-        log.debug("Updating recipe with title={} and id={}", storedRecipe.getTitle(),
-            storedRecipe.getId());
 
         recipe.getRecipeIngredients().forEach(r -> r.setRecipe(storedRecipe));
 
@@ -153,7 +144,6 @@ public class RecipesServiceImpl implements RecipesService {
     @Override
     @Transactional
     public void addImage(int id, MultipartFile imageFile) {
-        log.debug("Saving image to recipe.id={}", id);
         Recipe recipe = findById(id);
 
         String newImagePath = imageService.save(bucketName, imagePath + id + "/", imageFile);
@@ -166,20 +156,18 @@ public class RecipesServiceImpl implements RecipesService {
     @Override
     @Transactional
     public void delete(int id) {
-        log.debug("Deleting Recipe with id={}", id);
         recipesRepository.deleteById(id);
         imageService.delete(bucketName, imagePath + id);
     }
 
-    public Recipe enrich(Recipe recipe) {
+    private Recipe enrich(Recipe recipe) {
         recipe.getRecipeIngredients().stream().forEach(r -> r.setRecipe(recipe));
         recipe.setCreatedAt(LocalDateTime.now());
 
         return recipe;
     }
 
-    public void deleteOldIngredients(Recipe recipe) {
-        log.debug("Deleting old ingredients from recipe.id={}", recipe.getId());
+    private void deleteOldIngredients(Recipe recipe) {
         recipe.getRecipeIngredients().forEach(r -> {
             r.setIngredient(null);
             r.setRecipe(null);

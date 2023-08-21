@@ -1,0 +1,5 @@
+s3.credentials.accesskey=
+s3.credentials.secretkey=
+s3.endpoint=http://127.0.0.1:9000
+s3.bucket.name=food-helper
+s3.path.recipes=recipes/

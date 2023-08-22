@@ -2,6 +2,15 @@
 This API allows you to create and manage recipes. Supports search recipes by its ingredients and saving photos in S3 storage.
 Also supports CRUD operations for all entites (recipes, ingredients, categories)
 
+# Build with
+- Spring Boot
+- Spring Data JPA
+- Spring Web MVC
+- Hibernate
+- PostgreSQL
+- AOP
+- Lombok
+
 ## Set up 
 - [*clone*](https://github.com/HUNT-ER/food-helper.git) the project
 - change [application.properties](src/main/resources/application.properties) file based on your database configurations

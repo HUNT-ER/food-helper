@@ -142,12 +142,12 @@ Search recipe by ingredients, with pagination by page and size
     "ingredients": [
       {
         "ingredient": {
-        "id": 2
+          "id": 2
         }
       },
       {
         "ingredient": {
-            "id": 1
+          "id": 1
         }
       }
       ]

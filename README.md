@@ -130,28 +130,28 @@ Search recipe by ingredients, with pagination by page and size
   create new recipe by request body:
 ```agsl
   request body:
-{
-"title": "Recipe",
-"description": "Description",
-"category": {
-  "id": 6
-},
-"creator": {
-  "id": 1
-},
-"ingredients": [
-  {
-    "ingredient": {
-    "id": 2
+    {
+    "title": "Recipe",
+    "description": "Description",
+    "category": {
+      "id": 6
+    },
+    "creator": {
+      "id": 1
+    },
+    "ingredients": [
+      {
+        "ingredient": {
+        "id": 2
+        }
+      },
+      {
+        "ingredient": {
+            "id": 1
+        }
+      }
+      ]
     }
-  },
-  {
-    "ingredient": {
-        "id": 1
-    }
-  }
-  ]
-}
 ```
 
 **PUT** `/api/recipes/{id} `

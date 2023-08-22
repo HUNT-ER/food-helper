@@ -6,6 +6,8 @@ Also supports CRUD operations for all entites (recipes, ingredients, categories)
 - Spring Boot
 - Spring Data JPA
 - Spring Web MVC
+- Spring Security
+- JWT
 - Hibernate
 - PostgreSQL
 - AOP

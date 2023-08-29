@@ -45,7 +45,7 @@ public class RecipesController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getAll(@RequestParam(defaultValue = "0") Integer page,
+    public ResponseEntity<Page<RecipeDTO>> getAll(@RequestParam(defaultValue = "0") Integer page,
         @RequestParam(defaultValue = "5") Integer size) {
         Page<RecipeDTO> recipes = recipesService.findAll(page, size)
             .map(recipeMapper::recipeToRecipeDTO);
@@ -56,7 +56,7 @@ public class RecipesController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getById(@PathVariable("id") @Min(1) Integer id) {
+    public ResponseEntity<CustomResponse> getById(@PathVariable("id") @Min(1) Integer id) {
 
         return ResponseEntity.ok()
             .contentType(MediaType.APPLICATION_JSON)
@@ -67,7 +67,7 @@ public class RecipesController {
     }
 
     @PostMapping
-    public ResponseEntity<?> create(
+    public ResponseEntity<CustomResponse> create(
         @RequestBody @Validated(NewRecipe.class) RecipeDTO recipeDTO, BindingResult errors) {
         recipeValidator.validate(recipeDTO, errors);
 
@@ -79,7 +79,7 @@ public class RecipesController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> editById(@PathVariable("id") @Min(1) Integer id,
+    public ResponseEntity<CustomResponse> editById(@PathVariable("id") @Min(1) Integer id,
         @RequestBody @Validated(NewRecipe.class) RecipeDTO recipeDTO, BindingResult errors) {
         recipeValidator.validate(recipeDTO, errors);
 
@@ -94,7 +94,7 @@ public class RecipesController {
     }
 
     @GetMapping("{id}/image")
-    public ResponseEntity<?> getImageById(@PathVariable("id") Integer id) {
+    public ResponseEntity<CustomResponse> getImageById(@PathVariable("id") Integer id) {
 
         return ResponseEntity.ok()
             .contentType(MediaType.APPLICATION_JSON)
@@ -104,9 +104,8 @@ public class RecipesController {
                 .build());
     }
 
-
     @PutMapping("{id}/image")
-    public ResponseEntity<?> editImageById(@PathVariable("id") Integer id,
+    public ResponseEntity<CustomResponse> editImageById(@PathVariable("id") Integer id,
         @RequestParam(name = "image", required = true) MultipartFile image) {
 
         recipesService.addImage(id, image);
@@ -121,7 +120,7 @@ public class RecipesController {
 
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteById(@PathVariable("id") @Min(1) Integer id) {
+    public ResponseEntity<CustomResponse> deleteById(@PathVariable("id") @Min(1) Integer id) {
 
         recipesService.delete(id);
 
@@ -134,7 +133,7 @@ public class RecipesController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<?> search(@RequestParam("ingredient") List<Integer> ingredients,
+    public ResponseEntity<Page<RecipeDTO>> search(@RequestParam("ingredient") List<Integer> ingredients,
         @RequestParam(defaultValue = "0") Integer page,
         @RequestParam(defaultValue = "5") Integer size) {
 

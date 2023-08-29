@@ -43,9 +43,8 @@ public class IngredientsController {
         this.ingredientValidator = ingredientValidator;
     }
 
-    //todo add pagination and sorting
     @GetMapping
-    public ResponseEntity<?> getAll(@RequestParam(defaultValue = "0") Integer page,
+    public ResponseEntity<Page<IngredientDTO>> getAll(@RequestParam(defaultValue = "0") Integer page,
         @RequestParam(defaultValue = "5") Integer size) {
         Page<IngredientDTO> ingredients = ingredientsService.findAll(page, size)
             .map(ingredientMapper::ingredientToIngredientDTO);
@@ -56,19 +55,18 @@ public class IngredientsController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getById(@PathVariable("id") @Min(1) Integer id) {
+    public ResponseEntity<CustomResponse> getById(@PathVariable("id") @Min(1) Integer id) {
 
         return ResponseEntity.ok()
-            .contentType(MediaType.APPLICATION_JSON).body(CustomResponse.builder()
+            .contentType(MediaType.APPLICATION_JSON)
+                .body(CustomResponse.builder()
                 .httpStatus(HttpStatus.OK)
                 .body(ingredientMapper.ingredientToIngredientDTO(ingredientsService.findById(id)))
                 .build());
     }
 
-
-
     @PostMapping
-    public ResponseEntity<?> create(
+    public ResponseEntity<CustomResponse> create(
         @RequestBody @Validated(NewIngredient.class) IngredientDTO ingredientDTO,
         BindingResult errors) {
         ingredientValidator.validate(ingredientDTO, errors);
@@ -83,7 +81,7 @@ public class IngredientsController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> editById(@PathVariable("id") @Min(1) Integer id,
+    public ResponseEntity<CustomResponse> editById(@PathVariable("id") @Min(1) Integer id,
         @RequestBody @Validated(NewIngredient.class) IngredientDTO ingredientDTO,
         BindingResult errors) {
         ingredientValidator.validate(ingredientDTO, errors);
@@ -99,7 +97,7 @@ public class IngredientsController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteById(@PathVariable("id") @Min(1) Integer id) {
+    public ResponseEntity<CustomResponse> deleteById(@PathVariable("id") @Min(1) Integer id) {
         ingredientsService.delete(id);
 
         return ResponseEntity.ok()
@@ -111,7 +109,7 @@ public class IngredientsController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<?> searchByName(@RequestParam(value = "name") String name,
+    public ResponseEntity<Page<IngredientDTO>> searchByName(@RequestParam(value = "name") String name,
         @RequestParam(defaultValue = "0") Integer page,
         @RequestParam(defaultValue = "5") Integer size) {
         Page<IngredientDTO> ingredients = ingredientsService.searchByName(name, page, size)

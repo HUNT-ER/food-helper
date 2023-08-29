@@ -51,10 +51,10 @@ public class RecipeCategoriesController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getAll() {
+    public ResponseEntity<CustomResponse> getAll() {
         List<RecipeCategoryDTO> categories = categoriesService.findAll().stream()
             .map(categoryMapper::categoryToCategoryDTO).toList();
-        //протестировать
+
         return ResponseEntity.ok()
             .contentType(MediaType.APPLICATION_JSON)
             .body(CustomResponse.builder()
@@ -64,7 +64,7 @@ public class RecipeCategoriesController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getById(@PathVariable("id") @Min(1) Integer id) {
+    public ResponseEntity<CustomResponse> getById(@PathVariable("id") @Min(1) Integer id) {
 
         return ResponseEntity.ok()
             .contentType(MediaType.APPLICATION_JSON)
@@ -75,7 +75,7 @@ public class RecipeCategoriesController {
     }
 
     @GetMapping("/{id}/recipes")
-    public ResponseEntity<?> getRecipes(@PathVariable("id") Integer id,
+    public ResponseEntity<Page<RecipeDTO>> getRecipes(@PathVariable("id") Integer id,
         @RequestParam(value = "page", defaultValue = "0") Integer page,
         @RequestParam(value = "size", defaultValue = "5") Integer size) {
 
@@ -88,7 +88,7 @@ public class RecipeCategoriesController {
     }
 
     @PostMapping
-    public ResponseEntity<?> create(
+    public ResponseEntity<CustomResponse> create(
         @RequestBody @Validated(NewCategory.class) RecipeCategoryDTO categoryDTO,
         BindingResult errors) {
         categoryValidator.validate(categoryDTO, errors);
@@ -103,7 +103,7 @@ public class RecipeCategoriesController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> editById(@PathVariable("id") @Min(1) Integer id,
+    public ResponseEntity<CustomResponse> editById(@PathVariable("id") @Min(1) Integer id,
         @RequestBody @Validated(NewCategory.class) RecipeCategoryDTO categoryDTO,
         BindingResult errors) {
         categoryValidator.validate(categoryDTO, errors);
@@ -119,7 +119,7 @@ public class RecipeCategoriesController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteById(@PathVariable("id") @Min(1) Integer id) {
+    public ResponseEntity<CustomResponse> deleteById(@PathVariable("id") @Min(1) Integer id) {
         categoriesService.delete(id);
 
         return ResponseEntity.ok()

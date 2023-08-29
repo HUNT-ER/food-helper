@@ -1,11 +1,13 @@
 package com.boldyrev.foodhelper.controllers;
 
+import com.boldyrev.foodhelper.controllers.responses.CustomResponse;
 import com.boldyrev.foodhelper.dto.RecipeDTO;
 import com.boldyrev.foodhelper.services.RecipesService;
 import com.boldyrev.foodhelper.services.UsersService;
 import com.boldyrev.foodhelper.util.mappers.RecipeMapper;
 import com.boldyrev.foodhelper.util.mappers.UserMapper;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,15 +34,18 @@ public class UsersController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getById(@PathVariable("id") Integer id) {
+    public ResponseEntity<CustomResponse> getById(@PathVariable("id") Integer id) {
 
         return ResponseEntity.ok()
             .contentType(MediaType.APPLICATION_JSON)
-            .body(userMapper.userToUserDTO(usersService.findById(id)));
+            .body(CustomResponse.builder()
+                .body((userMapper.userToUserDTO(usersService.findById(id))))
+                .httpStatus(HttpStatus.OK)
+                .build());
     }
 
     @GetMapping("/{id}/recipes")
-    public ResponseEntity<?> getRecipes(@PathVariable("id") Integer id,
+    public ResponseEntity<Page<RecipeDTO>> getRecipes(@PathVariable("id") Integer id,
         @RequestParam(value = "page", defaultValue = "0") Integer page,
         @RequestParam(value = "size", defaultValue = "5") Integer size) {
         Page<RecipeDTO> recipes = recipesService.findAllByUserId(id, page, size)

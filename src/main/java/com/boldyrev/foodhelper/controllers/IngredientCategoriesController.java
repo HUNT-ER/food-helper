@@ -12,11 +12,14 @@ import com.boldyrev.foodhelper.util.mappers.IngredientMapper;
 import com.boldyrev.foodhelper.util.validators.IngredientCategoryValidator;
 import jakarta.validation.constraints.Min;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -32,6 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/ingredient-categories")
 @Validated
+@Slf4j
 public class IngredientCategoriesController {
 
     private final IngredientCategoriesService categoriesService;
@@ -52,7 +56,9 @@ public class IngredientCategoriesController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<CustomResponse> getAll() {
+        log.debug(SecurityContextHolder.getContext().getAuthentication().getName());
         List<IngredientCategoryDTO> categories = categoriesService.findAll().stream()
             .map(categoryMapper::categoryToCategoryDTO).toList();
 
@@ -65,6 +71,7 @@ public class IngredientCategoriesController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CustomResponse> getById(@PathVariable(name = "id") @Min(1) Integer id) {
 
         return ResponseEntity.ok()

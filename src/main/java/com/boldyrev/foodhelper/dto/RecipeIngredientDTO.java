@@ -13,9 +13,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class RecipeIngredientDTO {
 
-    @JsonIgnore
-    private Recipe recipe;
-
     @Valid
     @NotNull(groups = {NewRecipe.class})
     @JsonProperty("ingredient")

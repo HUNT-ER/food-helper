@@ -20,12 +20,10 @@ public class UsersServiceImpl implements UsersService {
 
     private final UsersRepository usersRepository;
     private final Logger log = LoggerFactory.getLogger(this.getClass());
-    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UsersServiceImpl(UsersRepository usersRepository, PasswordEncoder passwordEncoder) {
+    public UsersServiceImpl(UsersRepository usersRepository) {
         this.usersRepository = usersRepository;
-        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -76,7 +74,6 @@ public class UsersServiceImpl implements UsersService {
     }
 
     private User enrich(User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setCreatedAt(LocalDateTime.now());
         user.setRole(Role.USER);
         return user;
